@@ -1,0 +1,459 @@
+/* ==============================================
+   TripWise — Plan Trip Page Styles
+   ============================================== */
+
+.plan-trip-page {
+  flex: 1;
+  padding: 2.5rem 0 4.5rem;
+  background: var(--bg-page);
+}
+
+.plan-header {
+  text-align: center;
+  margin-bottom: 2.25rem;
+}
+
+.plan-title {
+  font-size: clamp(1.8rem, 3.5vw, 2.5rem);
+  font-weight: 800;
+  color: var(--text-primary);
+  margin: 0.65rem 0 0.4rem;
+}
+
+.plan-subtitle {
+  font-size: 1rem;
+  color: var(--text-secondary);
+  max-width: 580px;
+  margin: 0 auto;
+}
+
+/* ── Form Card ──────────────────────────────── */
+.plan-form {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2.5rem;
+  background: var(--bg-card);
+  box-shadow: var(--shadow-lg);
+  border-radius: var(--border-radius-xl);
+}
+
+.plan-section {
+  padding-bottom: 2.25rem;
+  margin-bottom: 2.25rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.plan-section:last-of-type {
+  border-bottom: none;
+  padding-bottom: 1rem;
+  margin-bottom: 0;
+}
+
+.plan-section-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.plan-section-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.plan-sec-num {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--color-primary-100);
+  color: var(--color-primary-dark);
+  font-size: 0.8rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.plan-section-hint {
+  font-size: 0.825rem;
+  color: var(--text-muted);
+}
+
+/* ── 1. Destination Cards ───────────────────── */
+.destination-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 0.85rem;
+}
+
+.destination-card-btn {
+  background: #ffffff;
+  border: 1.5px solid var(--border-color);
+  border-radius: var(--border-radius);
+  padding: 1rem 0.85rem;
+  text-align: left;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 125px;
+}
+
+.destination-card-btn:hover {
+  border-color: var(--color-primary-light);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+}
+
+.destination-card-btn.selected {
+  background: var(--color-primary-50);
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px var(--color-primary-100);
+}
+
+.dest-btn-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+.dest-btn-icon {
+  font-size: 1.6rem;
+}
+
+.dest-check-pill {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--color-primary-dark);
+  background: var(--color-primary-100);
+  padding: 2px 6px;
+  border-radius: var(--border-radius-full);
+}
+
+.dest-btn-name {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.dest-btn-state {
+  font-size: 0.725rem;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+
+.dest-btn-highlight {
+  font-size: 0.725rem;
+  color: var(--color-primary-dark);
+  font-weight: 600;
+}
+
+@media (max-width: 900px) {
+  .destination-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+@media (max-width: 600px) {
+  .destination-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* ── 2. Trip Details & Budget ───────────────── */
+.plan-details-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1.4fr;
+  gap: 1.25rem;
+}
+
+.counter-card {
+  background: var(--color-gray-50);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  padding: 1rem 1.15rem;
+}
+
+.counter-input-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0.5rem 0 0.25rem;
+}
+
+.counter-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: var(--border-radius-sm);
+  background: #ffffff;
+  border: 1.5px solid var(--border-color);
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.counter-btn:hover {
+  background: var(--color-primary-50);
+  border-color: var(--color-primary);
+  color: var(--color-primary-dark);
+}
+
+.counter-input {
+  flex: 1;
+  text-align: center;
+  padding: 0.5rem;
+  border: 1.5px solid var(--border-color);
+  border-radius: var(--border-radius-sm);
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  background: #ffffff;
+  outline: none;
+}
+
+.counter-input:focus {
+  border-color: var(--color-primary);
+}
+
+.counter-subtext {
+  font-size: 0.725rem;
+  color: var(--text-muted);
+}
+
+.budget-card {
+  background: var(--color-gray-50);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  padding: 1rem 1.15rem;
+}
+
+.budget-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  margin: 0.5rem 0 0.65rem;
+}
+
+.currency-prefix {
+  position: absolute;
+  left: 12px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+
+.budget-input {
+  padding-left: 2rem !important;
+  font-size: 1.05rem !important;
+  font-weight: 700 !important;
+}
+
+.budget-presets {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.preset-pill {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 3px 8px;
+  background: #ffffff;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-full);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.preset-pill:hover,
+.preset-pill.selected {
+  background: var(--color-primary-100);
+  border-color: var(--color-primary);
+  color: var(--color-primary-dark);
+}
+
+@media (max-width: 860px) {
+  .plan-details-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ── 3. Travel Type ─────────────────────────── */
+.travel-type-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+
+.travel-type-card {
+  background: #ffffff;
+  border: 1.5px solid var(--border-color);
+  border-radius: var(--border-radius);
+  padding: 1.15rem 1rem;
+  text-align: left;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  display: flex;
+  flex-direction: column;
+}
+
+.travel-type-card:hover {
+  border-color: var(--color-primary-light);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+}
+
+.travel-type-card.selected {
+  background: var(--color-primary-50);
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px var(--color-primary-100);
+}
+
+.travel-type-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.travel-type-icon {
+  font-size: 1.75rem;
+}
+
+.type-check-dot {
+  color: var(--color-primary);
+  font-size: 0.85rem;
+}
+
+.travel-type-label {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.travel-type-desc {
+  font-size: 0.775rem;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+@media (max-width: 860px) {
+  .travel-type-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (max-width: 520px) {
+  .travel-type-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ── 4. Interests & Chips ───────────────────── */
+.interests-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 0.75rem;
+}
+
+.interest-card-chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #ffffff;
+  border: 1.5px solid var(--border-color);
+  border-radius: var(--border-radius);
+  padding: 0.75rem 0.85rem;
+  cursor: pointer;
+  text-align: left;
+  transition: all var(--transition-fast);
+}
+
+.interest-card-chip:hover {
+  border-color: var(--color-primary-light);
+  background: var(--color-gray-50);
+}
+
+.interest-card-chip.selected {
+  background: var(--color-primary-50);
+  border-color: var(--color-primary);
+}
+
+.interest-icon {
+  font-size: 1.25rem;
+  flex-shrink: 0;
+}
+
+.interest-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.interest-title {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.interest-category {
+  display: block;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+.interest-check {
+  font-size: 0.8rem;
+  color: var(--color-primary);
+  font-weight: 800;
+}
+
+@media (max-width: 900px) {
+  .interests-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+@media (max-width: 600px) {
+  .interests-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* ── Plan Footer ────────────────────────────── */
+.plan-footer {
+  margin-top: 2rem;
+  padding-top: 1.75rem;
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.plan-summary-box {
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+  background: var(--color-gray-50);
+  border: 1px solid var(--border-color);
+  padding: 0.65rem 1rem;
+  border-radius: var(--border-radius);
+}
+
+.plan-summary-box strong {
+  color: var(--text-primary);
+  margin-right: 6px;
+}

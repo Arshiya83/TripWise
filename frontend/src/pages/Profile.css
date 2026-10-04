@@ -1,0 +1,110 @@
+/* ==============================================
+   TripWise — Profile Page Styles
+   ============================================== */
+
+.profile-page {
+  flex: 1;
+  padding: 2.5rem 0 5rem;
+  background: var(--bg-page);
+}
+
+.profile-header {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.profile-avatar-large {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+  color: #ffffff;
+  font-size: 2rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-primary);
+}
+
+.profile-name {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-bottom: 2px;
+}
+
+.profile-email {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.profile-toast {
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  color: #065f46;
+  padding: 0.75rem 1.25rem;
+  border-radius: var(--border-radius);
+  font-size: 0.88rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+}
+
+.profile-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 2rem;
+  align-items: start;
+}
+
+.profile-form-card {
+  padding: 2rem;
+  background: #ffffff;
+  border-radius: var(--border-radius-xl);
+  display: flex;
+  flex-direction: column;
+  gap: 1.15rem;
+}
+
+.profile-sec-title {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.profile-side-card {
+  padding: 1.75rem;
+  background: #ffffff;
+  border-radius: var(--border-radius-xl);
+}
+
+.prof-stat-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.88rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-secondary);
+}
+
+.prof-stat-row:last-child {
+  border-bottom: none;
+}
+
+.prof-stat-row strong {
+  color: var(--text-primary);
+}
+
+@media (max-width: 900px) {
+  .profile-form-grid {
+    grid-template-columns: 1fr;
+  }
+}

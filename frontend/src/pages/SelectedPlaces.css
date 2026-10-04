@@ -1,0 +1,234 @@
+/* ==============================================
+   TripWise — Selected Places Page Styles
+   ============================================== */
+
+.selected-places-page {
+  flex: 1;
+  padding: 2.5rem 0 5rem;
+  background: var(--bg-page);
+}
+
+.sel-header {
+  margin-bottom: 2rem;
+}
+
+.sel-header-top {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+}
+
+.sel-title {
+  font-size: clamp(1.8rem, 3vw, 2.3rem);
+  font-weight: 800;
+  color: var(--text-primary);
+  margin: 0.5rem 0 0.35rem;
+}
+
+.sel-subtitle {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  max-width: 620px;
+}
+
+.sel-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+/* ── Content Grid ───────────────────────────── */
+.sel-content-grid {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 2rem;
+  align-items: start;
+}
+
+.sel-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.sel-item-card {
+  padding: 1rem 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  position: relative;
+}
+
+.sel-item-index {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--color-primary-100);
+  color: var(--color-primary-dark);
+  font-size: 0.85rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.sel-item-thumb {
+  width: 90px;
+  height: 80px;
+  border-radius: var(--border-radius);
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.sel-item-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.sel-item-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.sel-item-rating {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #f59e0b;
+}
+
+.sel-item-name {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 2px;
+}
+
+.sel-item-location {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+
+.sel-item-meta {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.sel-item-actions {
+  flex-shrink: 0;
+}
+
+.sel-remove-btn {
+  background: #fef2f2;
+  border: 1px solid #fee2e2;
+  border-radius: var(--border-radius-sm);
+  padding: 6px 12px;
+  color: #dc2626;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.sel-remove-btn:hover {
+  background: #fee2e2;
+  border-color: #fca5a5;
+}
+
+/* ── Sidebar ────────────────────────────────── */
+.sel-summary-card {
+  padding: 1.75rem;
+  background: #ffffff;
+  border-radius: var(--border-radius-xl);
+  position: sticky;
+  top: 90px;
+}
+
+.sidebar-title {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-bottom: 1.25rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.sidebar-metric-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.88rem;
+  margin-bottom: 0.75rem;
+}
+
+.metric-label {
+  color: var(--text-secondary);
+}
+
+.metric-val {
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.font-highlight {
+  color: var(--color-primary-dark);
+}
+
+.sidebar-divider {
+  height: 1px;
+  background: var(--border-color);
+  margin: 1.25rem 0;
+}
+
+.sidebar-tip {
+  display: flex;
+  gap: 10px;
+  background: var(--color-primary-50);
+  border: 1px solid var(--color-primary-100);
+  padding: 0.85rem;
+  border-radius: var(--border-radius);
+  margin-bottom: 1.5rem;
+}
+
+.tip-icon {
+  font-size: 1.25rem;
+  flex-shrink: 0;
+}
+
+.tip-text {
+  font-size: 0.8rem;
+  color: var(--color-primary-darker);
+  line-height: 1.5;
+}
+
+.sidebar-continue-btn {
+  margin-bottom: 0.65rem;
+}
+
+@media (max-width: 900px) {
+  .sel-content-grid {
+    grid-template-columns: 1fr;
+  }
+  .sel-summary-card {
+    position: static;
+  }
+}
+
+@media (max-width: 600px) {
+  .sel-item-card {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .sel-item-thumb {
+    width: 100%;
+    height: 140px;
+  }
+}

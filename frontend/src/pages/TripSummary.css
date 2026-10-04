@@ -1,0 +1,373 @@
+/* ==============================================
+   TripWise — Trip Summary Page Styles
+   ============================================== */
+
+.trip-summary-page {
+  flex: 1;
+  padding: 2.5rem 0 5rem;
+  background: var(--bg-page);
+}
+
+.summary-header {
+  margin-bottom: 2rem;
+}
+
+.summary-header-top {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.summary-badge-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--color-primary-100);
+  color: var(--color-primary-darker);
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: var(--border-radius-full);
+  margin-bottom: 0.5rem;
+}
+
+.summary-title {
+  font-size: clamp(1.8rem, 3.2vw, 2.4rem);
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-bottom: 0.35rem;
+}
+
+.summary-subtitle {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  max-width: 640px;
+}
+
+.summary-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.summary-toast {
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  color: #065f46;
+  padding: 0.85rem 1.25rem;
+  border-radius: var(--border-radius);
+  font-size: 0.9rem;
+  margin-bottom: 1.5rem;
+}
+
+/* ── Metrics Grid ───────────────────────────── */
+.summary-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 1rem;
+}
+
+.sum-metric-card {
+  padding: 1.15rem;
+  display: flex;
+  flex-direction: column;
+  background: #ffffff;
+  border-radius: var(--border-radius);
+}
+
+.sum-m-icon {
+  font-size: 1.4rem;
+  margin-bottom: 4px;
+}
+
+.sum-m-label {
+  font-size: 0.725rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.sum-m-val {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-top: 2px;
+}
+
+.font-teal {
+  color: var(--color-primary-dark);
+}
+
+@media (max-width: 1024px) {
+  .summary-metrics-grid { grid-template-columns: repeat(3, 1fr); }
+}
+@media (max-width: 600px) {
+  .summary-metrics-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* ── Layout Grid ────────────────────────────── */
+.summary-layout-grid {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 2rem;
+  align-items: start;
+}
+
+.summary-main-col {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.summary-card {
+  padding: 1.75rem;
+  background: #ffffff;
+  border-radius: var(--border-radius-xl);
+}
+
+.card-sec-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.25rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.card-sec-title {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.edit-link {
+  font-size: 0.825rem;
+  font-weight: 700;
+  color: var(--color-primary-dark);
+}
+
+.edit-link:hover {
+  text-decoration: underline;
+}
+
+/* Places List */
+.summary-places-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.sum-place-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0.75rem;
+  background: var(--color-gray-50);
+  border-radius: var(--border-radius);
+  border: 1px solid var(--border-color);
+}
+
+.sum-place-num {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.sum-place-img {
+  width: 56px;
+  height: 50px;
+  border-radius: var(--border-radius-sm);
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.sum-place-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.sum-place-body h4 {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 2px;
+}
+
+.sum-place-body p {
+  font-size: 0.775rem;
+  color: var(--text-muted);
+}
+
+/* Daily Schedule Outline */
+.summary-days-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.sum-day-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 0.85rem;
+  background: var(--color-gray-50);
+  border-radius: var(--border-radius);
+  border: 1px solid var(--border-color);
+}
+
+.sum-day-badge {
+  background: var(--color-primary-100);
+  color: var(--color-primary-dark);
+  font-size: 0.75rem;
+  font-weight: 800;
+  padding: 4px 10px;
+  border-radius: var(--border-radius-sm);
+  flex-shrink: 0;
+}
+
+.sum-day-body {
+  flex: 1;
+}
+
+.sum-day-body h4 {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 6px;
+}
+
+.sum-day-stops {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.sum-stop-pill {
+  background: #ffffff;
+  border: 1px solid var(--border-color);
+  padding: 3px 8px;
+  border-radius: var(--border-radius-full);
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+/* Stays & Dining Preview */
+.sum-stay-preview {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.sum-hotel-box, .sum-dining-box {
+  background: var(--color-gray-50);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  padding: 1rem;
+}
+
+.box-tag {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--color-primary-dark);
+  margin-bottom: 6px;
+}
+
+.sum-hotel-box h4 {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.sum-hotel-box p {
+  font-size: 0.775rem;
+  color: var(--text-muted);
+  margin: 2px 0 6px;
+}
+
+.box-price {
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: var(--color-primary-dark);
+}
+
+.dining-mini-item {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 6px;
+  font-size: 0.8rem;
+}
+
+.dining-mini-item strong {
+  color: var(--text-primary);
+}
+
+.dining-mini-item span {
+  color: var(--text-muted);
+  font-size: 0.75rem;
+}
+
+/* ── Checkout Sidebar ───────────────────────── */
+.summary-checkout-card {
+  padding: 1.75rem;
+  background: #ffffff;
+  border-radius: var(--border-radius-xl);
+  position: sticky;
+  top: 90px;
+}
+
+.checkout-title {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.checkout-sub {
+  font-size: 0.825rem;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.checkout-divider {
+  height: 1px;
+  background: var(--border-color);
+  margin: 1.15rem 0;
+}
+
+.checkout-item-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.75rem;
+}
+
+.checkout-item-row span:last-child {
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.checkout-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  margin-top: 1.5rem;
+}
+
+@media (max-width: 900px) {
+  .summary-layout-grid { grid-template-columns: 1fr; }
+  .summary-checkout-card { position: static; }
+  .sum-stay-preview { grid-template-columns: 1fr; }
+}
