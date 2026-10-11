@@ -1,27 +1,27 @@
 /* ==============================================
    TripWise — Global Design System
-   Modern Travel-Tech Aesthetic (Teal / Turquoise)
+  Modern Travel-Tech Aesthetic (Navy / Sky / Violet)
    ============================================== */
 
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@500;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap');
 
 /* ------ CSS Variables ------ */
 :root {
-  /* Brand Teal / Turquoise Palette */
-  --color-primary:        #0d9488;  /* Teal 600 - Main Brand */
-  --color-primary-dark:   #0f766e;  /* Teal 700 - Hover / Darker */
-  --color-primary-darker: #115e59;  /* Teal 800 */
-  --color-primary-light:  #14b8a6;  /* Teal 500 */
-  --color-primary-subtle: #2dd4bf;  /* Teal 400 */
-  --color-primary-50:     #f0fdfa;  /* Teal ultra light */
-  --color-primary-100:    #ccfbf1;  /* Teal light tint */
-  --color-primary-200:    #99f6e4;
+  /* Midnight navy with sky-blue and violet accents */
+  --color-primary:        #2563eb;
+  --color-primary-dark:   #1d4ed8;
+  --color-primary-darker: #071a2f;
+  --color-primary-light:  #22c7e8;
+  --color-primary-subtle: #7c5cfc;
+  --color-primary-50:     #eff6ff;
+  --color-primary-100:    #dbeafe;
+  --color-primary-200:    #bfdbfe;
 
   /* Secondary & Accents */
-  --color-secondary:      #0284c7;  /* Sky 600 */
-  --color-secondary-50:   #f0f9ff;
-  --color-accent:         #f59e0b;  /* Warm Amber */
-  --color-accent-light:   #fef3c7;
+  --color-secondary:      #22c7e8;
+  --color-secondary-50:   #ecfeff;
+  --color-accent:         #ff7a59;
+  --color-accent-light:   #fff1ed;
 
   /* Neutrals */
   --color-white:          #ffffff;
@@ -46,13 +46,13 @@
   --color-info:           #0ea5e9;
 
   /* Text Roles */
-  --text-primary:         #0f172a;
-  --text-secondary:       #475569;
+  --text-primary:         #102a43;
+  --text-secondary:       #64748b;
   --text-muted:           #94a3b8;
   --text-on-primary:      #ffffff;
 
   /* Surfaces & Backgrounds */
-  --bg-page:              #f8fafc;
+  --bg-page:              #f4f7fb;
   --bg-card:              #ffffff;
   --bg-subtle:            #f1f5f9;
   --bg-overlay:           rgba(15, 23, 42, 0.65);
@@ -72,7 +72,7 @@
   --shadow:      0 4px 14px rgba(15, 23, 42, 0.06), 0 1px 3px rgba(15, 23, 42, 0.04);
   --shadow-md:   0 10px 25px -4px rgba(15, 23, 42, 0.08), 0 4px 8px -2px rgba(15, 23, 42, 0.03);
   --shadow-lg:   0 20px 35px -6px rgba(15, 23, 42, 0.10), 0 8px 16px -4px rgba(15, 23, 42, 0.04);
-  --shadow-primary: 0 8px 24px rgba(13, 148, 136, 0.22);
+  --shadow-primary: 0 8px 24px rgba(37, 99, 235, 0.22);
   --shadow-card-hover: 0 16px 32px rgba(15, 23, 42, 0.09), 0 4px 8px rgba(15, 23, 42, 0.04);
 
   /* Typography */
@@ -194,7 +194,7 @@ p {
 .card-hover:hover {
   transform: translateY(-3px);
   box-shadow: var(--shadow-card-hover);
-  border-color: rgba(13, 148, 136, 0.25);
+  border-color: rgba(34, 199, 232, 0.35);
 }
 
 /* ------ Form Controls ------ */
@@ -227,7 +227,7 @@ p {
 
 .form-input:focus, .form-select:focus, .form-textarea:focus {
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.14);
+  box-shadow: 0 0 0 3px rgba(34, 199, 232, 0.18);
 }
 
 .form-input::placeholder, .form-textarea::placeholder {
@@ -264,7 +264,7 @@ p {
 .badge-primary {
   background: var(--color-primary-100);
   color: var(--color-primary-dark);
-  border: 1px solid rgba(13, 148, 136, 0.2);
+  border: 1px solid rgba(37, 99, 235, 0.16);
 }
 
 .badge-secondary {
@@ -401,8 +401,8 @@ p {
 }
 
 @keyframes pulseGlow {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(13, 148, 136, 0.35); }
-  50% { box-shadow: 0 0 0 8px rgba(13, 148, 136, 0); }
+  0%, 100% { box-shadow: 0 0 0 0 rgba(34, 199, 232, 0.35); }
+  50% { box-shadow: 0 0 0 8px rgba(34, 199, 232, 0); }
 }
 
 .animate-fade-in-up { animation: fadeInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) both; }

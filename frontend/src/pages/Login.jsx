@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import Button from '../components/Button';
+import BrandMark from '../components/BrandMark';
 import './Auth.css';
 
 function Login() {
@@ -16,7 +17,6 @@ function Login() {
   const [errors, setErrors] = useState({});
   const [serverError, setServerError] = useState('');
 
-  // ── Validation ───────────────────────────────────────────────
   const validate = () => {
     const e = {};
     if (!form.email.trim()) {
@@ -52,6 +52,7 @@ function Login() {
       setErrors(validationErrors);
       return;
     }
+
     const result = await login(form.email, form.password);
     if (result.success) {
       navigate(from, { replace: true });
@@ -63,75 +64,52 @@ function Login() {
   return (
     <div className="auth-page">
       <div className="auth-split-wrapper animate-fade-in-up">
-        {/* ── Left Side: Travel Showcase Branding ── */}
         <div className="auth-brand-side">
           <img
-            src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1000&q=80"
-            alt="Tropical travel coastal destination"
+            src="https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=1200&q=80"
+            alt="Travel destination with mountains and a lake"
             className="auth-brand-bg"
           />
           <div className="auth-brand-overlay" />
 
           <div className="auth-brand-content">
-            <Link to="/" className="auth-brand-logo" aria-label="TripWise homepage">
-              <span className="navbar-logo-icon" aria-hidden="true">✈</span>
+            <div className="auth-brand-logo">
+              <span className="navbar-logo-icon" aria-hidden="true"><BrandMark /></span>
               TripWise
-            </Link>
-
-            <div className="auth-brand-hero-text">
-              <span className="badge badge-accent" style={{ marginBottom: '0.85rem' }}>
-                AI Travel Assistant
-              </span>
-              <h2 className="auth-brand-title">
-                Your Next Great Journey Starts Here.
-              </h2>
-              <p className="auth-brand-subtitle">
-                Access your personalized itineraries, smart route maps, and budget planner in one unified workspace.
-              </p>
-
-              <ul className="auth-perks-list">
-                <li className="auth-perk-item">
-                  <span className="auth-perk-icon">✓</span>
-                  <span>Day-by-day smart schedule generation</span>
-                </li>
-                <li className="auth-perk-item">
-                  <span className="auth-perk-icon">✓</span>
-                  <span>Shortest transit route optimization</span>
-                </li>
-                <li className="auth-perk-item">
-                  <span className="auth-perk-icon">✓</span>
-                  <span>Real-time budget & expense tracking</span>
-                </li>
-              </ul>
             </div>
 
-            <div className="auth-testimonial-badge">
-              ⭐ <strong>4.9/5 Rating</strong> from 2,000+ happy travelers across India
+            <div className="auth-brand-hero-text">
+              <span className="badge badge-accent auth-badge">Travel smarter</span>
+              <h2 className="auth-brand-title">Plan smarter.<br />Travel better.</h2>
+              <p className="auth-brand-subtitle">
+                Build tailored itineraries, save favorite experiences, and discover destinations that match your pace and preferences.
+              </p>
+            </div>
+
+            <div className="auth-trust-row">
+              <span>✓ Curated city guides</span>
+              <span>✓ Smart route planning</span>
             </div>
           </div>
         </div>
 
-        {/* ── Right Side: Authentication Form ── */}
         <div className="auth-form-side">
           <div className="auth-header">
-            <span className="badge badge-primary auth-header-badge">Welcome Back</span>
-            <h1 className="auth-title">Sign in to TripWise</h1>
-            <p className="auth-subtitle">Enter your credentials to access your trips</p>
+            <span className="badge badge-primary auth-header-badge">Welcome</span>
+            <h1 className="auth-title">TripWise</h1>
+            <p className="auth-subtitle">Sign in to continue planning your next journey.</p>
           </div>
 
-          {/* Server Error */}
           {serverError && (
             <div className="auth-server-error" role="alert">
               <span>⚠</span> {serverError}
             </div>
           )}
 
-          {/* Form */}
           <form className="auth-form" onSubmit={handleSubmit} noValidate>
-            {/* Email */}
             <div className="form-group">
               <label htmlFor="login-email" className="form-label">
-                Email address
+                Email
               </label>
               <input
                 id="login-email"
@@ -143,16 +121,10 @@ function Login() {
                 value={form.email}
                 onChange={handleChange}
                 disabled={loading}
-                aria-describedby={errors.email ? 'login-email-err' : undefined}
               />
-              {errors.email && (
-                <span id="login-email-err" className="form-error" role="alert">
-                  ✕ {errors.email}
-                </span>
-              )}
+              {errors.email && <span className="form-error">✕ {errors.email}</span>}
             </div>
 
-            {/* Password */}
             <div className="form-group">
               <label htmlFor="login-password" className="form-label">
                 Password
@@ -163,12 +135,11 @@ function Login() {
                   type={showPassword ? 'text' : 'password'}
                   name="password"
                   autoComplete="current-password"
-                  placeholder="••••••••"
+                  placeholder="Enter your password"
                   className={`form-input${errors.password ? ' error' : ''}`}
                   value={form.password}
                   onChange={handleChange}
                   disabled={loading}
-                  aria-describedby={errors.password ? 'login-pwd-err' : undefined}
                 />
                 <button
                   type="button"
@@ -179,48 +150,29 @@ function Login() {
                   {showPassword ? '🙈' : '👁'}
                 </button>
               </div>
-              {errors.password && (
-                <span id="login-pwd-err" className="form-error" role="alert">
-                  ✕ {errors.password}
-                </span>
-              )}
+              {errors.password && <span className="form-error">✕ {errors.password}</span>}
             </div>
 
-            {/* Demo Account Helper */}
             <div className="demo-credentials-box">
               <div className="demo-credentials-info">
-                <strong>Demo Credentials:</strong>
+                <strong>Demo login</strong>
                 <span>demo@tripwise.app / password123</span>
               </div>
-              <Button
-                type="button"
-                variant="ghost"
-                size="xs"
-                onClick={fillDemoCredentials}
-              >
+              <Button type="button" variant="ghost" size="xs" onClick={fillDemoCredentials}>
                 Auto Fill
               </Button>
             </div>
 
-            {/* Submit */}
-            <Button
-              type="submit"
-              variant="primary"
-              size="lg"
-              fullWidth
-              loading={loading}
-              id="login-submit-btn"
-            >
-              {loading ? 'Signing in…' : 'Sign In to TripWise →'}
+            <Button type="submit" variant="primary" size="lg" fullWidth loading={loading} id="login-submit-btn">
+              {loading ? 'Signing In…' : 'Login'}
             </Button>
           </form>
 
-          {/* Footer links */}
           <div className="auth-footer">
             <p>
               Don&apos;t have an account?{' '}
               <Link to="/register" className="auth-link">
-                Create one free →
+                Create account
               </Link>
             </p>
           </div>

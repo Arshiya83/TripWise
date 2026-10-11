@@ -55,7 +55,7 @@ function BudgetPage() {
       amount: accommodationCost,
       percent: '38%',
       desc: `${days - 1} nights hotel stay for ${travelers} guests`,
-      color: '#0d9488',
+      color: '#3b82f6',
     },
     {
       id: 'food',

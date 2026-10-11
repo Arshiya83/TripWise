@@ -1,4 +1,6 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { destinations } from '../data/destination';
+import { DESTINATION_PLACES } from '../data/mockData';
 
 const TripContext = createContext(null);
 
@@ -17,13 +19,46 @@ const INITIAL_TRIP = {
   tripReady: false,  // set true when user clicks "Create My Smart Trip"
 };
 
+/**
+ * Resolves the city name for an attraction from either its own property or existing destination data.
+ */
+export function getAttractionCity(place) {
+  if (!place) return '';
+  if (place.city) return place.city.trim();
+  const matchDest = destinations.find((d) => d.id === place.id);
+  if (matchDest?.city) return matchDest.city.trim();
+  const matchMock = DESTINATION_PLACES.find((d) => d.id === place.id);
+  if (matchMock?.city) return matchMock.city.trim();
+  return '';
+}
+
+/**
+ * Validates if an attraction belongs to a given city (case-insensitive).
+ */
+export function isPlaceInCity(place, cityName) {
+  if (!place || !cityName) return false;
+  const pCity = getAttractionCity(place).toLowerCase();
+  const targetCity = cityName.trim().toLowerCase();
+  return pCity === targetCity;
+}
+
 function loadFromStorage() {
   try {
     const raw = localStorage.getItem(LS_KEY);
     if (!raw) return INITIAL_TRIP;
     const parsed = JSON.parse(raw);
-    // Ensure all keys exist (backwards-compat)
-    return { ...INITIAL_TRIP, ...parsed };
+    const loadedTrip = { ...INITIAL_TRIP, ...parsed };
+
+    // Validate that all loaded selectedPlaces strictly belong to loadedTrip.destination
+    if (loadedTrip.destination && Array.isArray(loadedTrip.selectedPlaces)) {
+      loadedTrip.selectedPlaces = loadedTrip.selectedPlaces.filter((p) =>
+        isPlaceInCity(p, loadedTrip.destination)
+      );
+    } else {
+      loadedTrip.selectedPlaces = [];
+    }
+
+    return loadedTrip;
   } catch {
     return INITIAL_TRIP;
   }
@@ -55,15 +90,54 @@ export function TripProvider({ children }) {
         next.adults = prefs.travelers;
         next.totalTravelers = prefs.travelers + (next.children || 0);
       }
+
+      // Check destination change
+      if ('destination' in prefs && prefs.destination !== undefined) {
+        const prevDest = (prev.destination || '').trim().toLowerCase();
+        const newDest = (prefs.destination || '').trim().toLowerCase();
+
+        // If destination changed, clear selectedPlaces (unless explicitly passed in prefs)
+        if (newDest !== prevDest) {
+          if (!('selectedPlaces' in prefs)) {
+            next.selectedPlaces = [];
+          }
+        }
+      }
+
+      // Validate all selectedPlaces belong to next.destination
+      const currentDest = (next.destination || '').trim();
+      if (currentDest && Array.isArray(next.selectedPlaces)) {
+        next.selectedPlaces = next.selectedPlaces.filter((p) => isPlaceInCity(p, currentDest));
+      } else if (!currentDest) {
+        next.selectedPlaces = [];
+      }
+
       return next;
     });
   }, []);
 
-  /** Add a place to selected places (no-op if already present) */
+  /** Add a place to selected places (no-op if already present or from different city) */
   const addPlace = useCallback((place) => {
+    if (!place || !place.id) return;
     setTrip((prev) => {
-      if (prev.selectedPlaces.some((p) => p.id === place.id)) return prev;
-      return { ...prev, selectedPlaces: [...prev.selectedPlaces, place] };
+      const currentDest = (prev.destination || '').trim();
+
+      // Do not allow an attraction from another city to be added
+      if (currentDest && !isPlaceInCity(place, currentDest)) {
+        return prev;
+      }
+
+      // Do not allow duplicate additions
+      if (prev.selectedPlaces.some((p) => p.id === place.id)) {
+        return prev;
+      }
+
+      // Keep only places belonging to currentDest
+      const sanitizedExisting = currentDest
+        ? prev.selectedPlaces.filter((p) => isPlaceInCity(p, currentDest))
+        : [];
+
+      return { ...prev, selectedPlaces: [...sanitizedExisting, place] };
     });
   }, []);
 
@@ -73,6 +147,11 @@ export function TripProvider({ children }) {
       ...prev,
       selectedPlaces: prev.selectedPlaces.filter((p) => p.id !== placeId),
     }));
+  }, []);
+
+  /** Clear all selected places */
+  const clearSelectedPlaces = useCallback(() => {
+    setTrip((prev) => ({ ...prev, selectedPlaces: [] }));
   }, []);
 
   /** Mark trip as ready for AI generation */
@@ -91,6 +170,7 @@ export function TripProvider({ children }) {
     setTripPreferences,
     addPlace,
     removePlace,
+    clearSelectedPlaces,
     markTripReady,
     resetTrip,
   };

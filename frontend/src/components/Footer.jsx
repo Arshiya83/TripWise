@@ -22,6 +22,8 @@ const ACCOUNT_LINKS = [
   { to: '/profile',  label: 'My Profile' },
 ];
 
+import BrandMark from './BrandMark';
+
 function Footer() {
   const year = new Date().getFullYear();
 
@@ -32,7 +34,7 @@ function Footer() {
           {/* Brand */}
           <div>
             <div className="footer-brand-logo">
-              <span className="footer-brand-icon" aria-hidden="true">✈</span>
+              <span className="footer-brand-icon" aria-hidden="true"><BrandMark /></span>
               TripWise
             </div>
             <p className="footer-tagline">

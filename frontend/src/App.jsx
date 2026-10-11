@@ -2,6 +2,7 @@ import {
   createBrowserRouter,
   RouterProvider,
   createRoutesFromElements,
+  Navigate,
   Route,
 } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
@@ -31,12 +32,11 @@ import './App.css';
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route element={<MainLayout />}>
-      {/* Public routes */}
-      <Route path="/" element={<Home />} />
+      <Route path="/" element={<Navigate to="/login" replace />} />
+      <Route path="/home" element={<Home />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
 
-      {/* Protected routes */}
       <Route element={<ProtectedRoute />}>
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/plan-trip" element={<PlanTrip />} />
@@ -52,7 +52,6 @@ const router = createBrowserRouter(
         <Route path="/profile" element={<Profile />} />
       </Route>
 
-      {/* 404 */}
       <Route
         path="*"
         element={

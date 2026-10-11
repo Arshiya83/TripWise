@@ -102,7 +102,7 @@ function MapPage() {
                 <path
                   d="M 50,420 Q 200,280 400,250 T 750,150"
                   fill="none"
-                  stroke="#ccfbf1"
+                  stroke="#bae6fd"
                   strokeWidth="28"
                   opacity="0.5"
                 />
@@ -116,7 +116,7 @@ function MapPage() {
                 <path
                   d="M 120,380 L 260,260 L 460,280 L 640,160"
                   fill="none"
-                  stroke="#0d9488"
+                  stroke="#3b82f6"
                   strokeWidth="4"
                   strokeDasharray="6 6"
                 />

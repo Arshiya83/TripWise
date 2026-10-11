@@ -2,12 +2,14 @@ import { useState } from 'react';
 import { NavLink, Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import Button from './Button';
+import BrandMark from './BrandMark';
 
 const NAV_LINKS = [
-  { to: '/',           label: 'Home',        end: true },
-  { to: '/plan-trip',  label: 'Plan Trip'              },
-  { to: '/dashboard',  label: 'Dashboard'              },
-  { to: '/saved-trips',label: 'Saved Trips'            },
+  { to: '/dashboard', label: 'Dashboard', end: true },
+  { to: '/plan-trip', label: 'Plan a Trip' },
+  { to: '/saved-trips', label: 'My Trips' },
+  { to: '/selected-places', label: 'Saved Places' },
+  { to: '/profile', label: 'Profile' },
 ];
 
 function Navbar() {
@@ -20,33 +22,36 @@ function Navbar() {
   const handleLogout = () => {
     logout();
     closeMenu();
-    navigate('/');
+    navigate('/login');
   };
 
   const initials = user?.name
-    ? user.name.split(' ').map((n) => n[0]).join('').toUpperCase().slice(0, 2)
+    ? user.name
+        .split(' ')
+        .map((n) => n[0])
+        .join('')
+        .toUpperCase()
+        .slice(0, 2)
     : '?';
 
   return (
     <>
       <nav className="navbar" role="navigation" aria-label="Main navigation">
         <div className="navbar-inner">
-          {/* Logo */}
-          <Link to="/" className="navbar-logo" onClick={closeMenu}>
-            <span className="navbar-logo-icon" aria-hidden="true">✈</span>
+          <Link to="/dashboard" className="navbar-logo" onClick={closeMenu}>
+            <span className="navbar-logo-icon" aria-hidden="true">
+              <BrandMark />
+            </span>
             TripWise
           </Link>
 
-          {/* Desktop nav */}
           <ul className="navbar-nav" role="list">
             {NAV_LINKS.map(({ to, label, end }) => (
               <li key={to}>
                 <NavLink
                   to={to}
                   end={end}
-                  className={({ isActive }) =>
-                    `navbar-link${isActive ? ' active' : ''}`
-                  }
+                  className={({ isActive }) => `navbar-link${isActive ? ' active' : ''}`}
                 >
                   {label}
                 </NavLink>
@@ -54,7 +59,6 @@ function Navbar() {
             ))}
           </ul>
 
-          {/* Desktop actions */}
           <div className="navbar-actions">
             {isAuthenticated ? (
               <div className="navbar-user-menu">
@@ -70,27 +74,16 @@ function Navbar() {
               </div>
             ) : (
               <>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  as={Link}
-                  to="/login"
-                >
+                <Button variant="ghost" size="sm" as={Link} to="/login">
                   Login
                 </Button>
-                <Button
-                  variant="primary"
-                  size="sm"
-                  as={Link}
-                  to="/register"
-                >
+                <Button variant="primary" size="sm" as={Link} to="/register">
                   Sign Up
                 </Button>
               </>
             )}
           </div>
 
-          {/* Hamburger */}
           <button
             className="navbar-hamburger"
             onClick={() => setMenuOpen((o) => !o)}
@@ -105,21 +98,14 @@ function Navbar() {
         </div>
       </nav>
 
-      {/* Mobile nav */}
-      <div
-        id="mobile-menu"
-        className={`navbar-mobile${menuOpen ? ' open' : ''}`}
-        aria-hidden={!menuOpen}
-      >
+      <div id="mobile-menu" className={`navbar-mobile${menuOpen ? ' open' : ''}`} aria-hidden={!menuOpen}>
         <ul className="navbar-mobile-nav" role="list">
           {NAV_LINKS.map(({ to, label, end }) => (
             <li key={to}>
               <NavLink
                 to={to}
                 end={end}
-                className={({ isActive }) =>
-                  `navbar-mobile-link${isActive ? ' active' : ''}`
-                }
+                className={({ isActive }) => `navbar-mobile-link${isActive ? ' active' : ''}`}
                 onClick={closeMenu}
               >
                 {label}
@@ -131,12 +117,8 @@ function Navbar() {
         <div className="navbar-mobile-actions">
           {isAuthenticated ? (
             <>
-              <NavLink
-                to="/profile"
-                className="navbar-mobile-link"
-                onClick={closeMenu}
-              >
-                👤 My Profile
+              <NavLink to="/profile" className="navbar-mobile-link" onClick={closeMenu}>
+                Profile
               </NavLink>
               <Button variant="ghost" fullWidth onClick={handleLogout}>
                 Logout
@@ -144,22 +126,10 @@ function Navbar() {
             </>
           ) : (
             <>
-              <Button
-                variant="secondary"
-                fullWidth
-                as={Link}
-                to="/login"
-                onClick={closeMenu}
-              >
+              <Button variant="secondary" fullWidth as={Link} to="/login" onClick={closeMenu}>
                 Login
               </Button>
-              <Button
-                variant="primary"
-                fullWidth
-                as={Link}
-                to="/register"
-                onClick={closeMenu}
-              >
+              <Button variant="primary" fullWidth as={Link} to="/register" onClick={closeMenu}>
                 Sign Up Free
               </Button>
             </>

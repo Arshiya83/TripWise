@@ -9,7 +9,10 @@
   align-items: center;
   justify-content: center;
   padding: 2.5rem 1.5rem;
-  background: linear-gradient(135deg, #f0fdfa 0%, #f8fafc 50%, #f0f9ff 100%);
+  background:
+    radial-gradient(ellipse at 8% 18%, rgba(34, 199, 232, 0.12), transparent 28rem),
+    radial-gradient(ellipse at 92% 82%, rgba(124, 92, 252, 0.1), transparent 26rem),
+    #f4f7fb;
   min-height: calc(100vh - var(--navbar-height));
 }
 
@@ -28,7 +31,7 @@
 /* ── Left Side: Travel Branding ─────────────── */
 .auth-brand-side {
   position: relative;
-  background: #042f2e;
+  background: #071a2f;
   color: #ffffff;
   padding: 3rem 2.5rem;
   display: flex;
@@ -52,7 +55,7 @@
   background: linear-gradient(
     180deg,
     rgba(15, 23, 42, 0.7) 0%,
-    rgba(13, 148, 136, 0.6) 100%
+    rgba(37, 99, 235, 0.48) 100%
   );
 }
 
@@ -76,6 +79,19 @@
   text-decoration: none;
 }
 
+.auth-badge {
+  margin-bottom: 0.85rem;
+}
+
+.auth-trust-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1rem;
+  color: rgba(239, 246, 255, 0.95);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
 .auth-brand-hero-text {
   margin: 2rem 0;
 }
@@ -89,7 +105,7 @@
 }
 
 .auth-brand-subtitle {
-  color: rgba(240, 253, 250, 0.88);
+  color: rgba(239, 246, 255, 0.88);
   font-size: 0.95rem;
   line-height: 1.6;
 }
@@ -107,7 +123,7 @@
   align-items: center;
   gap: 10px;
   font-size: 0.9rem;
-  color: #f0fdfa;
+  color: #eff6ff;
   font-weight: 500;
 }
 
@@ -115,8 +131,8 @@
   width: 24px;
   height: 24px;
   border-radius: 50%;
-  background: rgba(45, 212, 191, 0.25);
-  border: 1px solid #2dd4bf;
+  background: rgba(34, 199, 232, 0.2);
+  border: 1px solid rgba(34, 199, 232, 0.7);
   display: flex;
   align-items: center;
   justify-content: center;

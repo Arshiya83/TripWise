@@ -1,19 +1,18 @@
-import { Outlet, ScrollRestoration } from 'react-router-dom';
+import { Outlet, ScrollRestoration, useLocation } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 
-/**
- * MainLayout — wraps every page with the global Navbar and Footer.
- * <Outlet /> renders the active child route.
- */
 function MainLayout() {
+  const location = useLocation();
+  const isAuthRoute = ['/', '/login', '/register'].includes(location.pathname);
+
   return (
     <>
-      <Navbar />
+      {!isAuthRoute && <Navbar />}
       <main id="main-content" style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
         <Outlet />
       </main>
-      <Footer />
+      {!isAuthRoute && <Footer />}
       <ScrollRestoration />
     </>
   );

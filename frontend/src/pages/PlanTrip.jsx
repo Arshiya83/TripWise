@@ -1,16 +1,9 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTrip } from '../context/TripContext';
+import { CITY_OPTIONS, isCitySupported, SUPPORTED_CITY_NAMES } from '../data/destination';
 import Button from '../components/Button';
 import './PlanTrip.css';
-
-const CITIES = [
-  { name: 'Hyderabad', state: 'Telangana', icon: '🏯', highlight: 'Biryani & Royal Forts' },
-  { name: 'Goa',       state: 'Goa',       icon: '🏖️', highlight: 'Beaches & Nightlife' },
-  { name: 'Jaipur',    state: 'Rajasthan', icon: '🏰', highlight: 'Palaces & Heritage' },
-  { name: 'Delhi',     state: 'Delhi NCR', icon: '🕌', highlight: 'Culture & Monuments' },
-  { name: 'Mumbai',    state: 'Maharashtra', icon: '🌊', highlight: 'Marine Drive & Vibes' },
-];
 
 const TRAVEL_TYPES = [
   { value: 'Solo',    icon: '🧍', label: 'Solo',    desc: 'Freedom to explore at your own pace' },
@@ -44,7 +37,7 @@ function PlanTrip() {
   const { trip, setTripPreferences } = useTrip();
 
   const [form, setForm] = useState({
-    destination: trip.destination || 'Hyderabad',
+    destination: trip.destination || '',
     numberOfDays: trip.numberOfDays || 3,
     travelers: trip.travelers || 2,
     budget: trip.budget || '25000',
@@ -52,7 +45,99 @@ function PlanTrip() {
     interests: trip.interests?.length > 0 ? trip.interests : ['History', 'Food', 'Culture'],
   });
 
+  // Search & dropdown state for Step 1
+  const [searchTerm, setSearchTerm] = useState('');
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isSearching, setIsSearching] = useState(!trip.destination);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const searchRef = useRef(null);
+  const searchInputRef = useRef(null);
+
   const [errors, setErrors] = useState({});
+  const cityIsSupported = isCitySupported(form.destination);
+
+  // Selected city object from existing CITY_OPTIONS
+  const selectedCity = CITY_OPTIONS.find(
+    (c) => c.name.toLowerCase() === (form.destination || '').toLowerCase()
+  );
+
+  // Filtered and sorted cities for search
+  const filteredCities = CITY_OPTIONS.filter((city) => {
+    if (!searchTerm.trim()) return true;
+    const term = searchTerm.trim().toLowerCase();
+    return (
+      city.name.toLowerCase().includes(term) ||
+      city.state?.toLowerCase().includes(term) ||
+      city.highlight?.toLowerCase().includes(term)
+    );
+  });
+
+  const sortedCities = [...filteredCities].sort((a, b) => {
+    if (!searchTerm.trim()) return 0;
+    const term = searchTerm.trim().toLowerCase();
+    const aStarts = a.name.toLowerCase().startsWith(term);
+    const bStarts = b.name.toLowerCase().startsWith(term);
+    if (aStarts && !bStarts) return -1;
+    if (!aStarts && bStarts) return 1;
+    return 0;
+  });
+
+  // Close dropdown and search mode when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (searchRef.current && !searchRef.current.contains(e.target)) {
+        setIsDropdownOpen(false);
+        if (form.destination) {
+          setIsSearching(false);
+        }
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [form.destination]);
+
+  // Keyboard navigation for search dropdown
+  const handleKeyDown = (e) => {
+    if (!isDropdownOpen && (e.key === 'ArrowDown' || e.key === 'ArrowUp')) {
+      setIsDropdownOpen(true);
+      return;
+    }
+
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setActiveIndex((prev) => (prev < sortedCities.length - 1 ? prev + 1 : 0));
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setActiveIndex((prev) => (prev > 0 ? prev - 1 : sortedCities.length - 1));
+    } else if (e.key === 'Enter') {
+      if (isDropdownOpen && sortedCities.length > 0 && sortedCities[activeIndex]) {
+        e.preventDefault();
+        selectCity(sortedCities[activeIndex]);
+      }
+    } else if (e.key === 'Escape') {
+      setIsDropdownOpen(false);
+      if (form.destination) {
+        setIsSearching(false);
+      }
+    }
+  };
+
+  const selectCity = (city) => {
+    setField('destination', city.name);
+    setIsDropdownOpen(false);
+    setIsSearching(false);
+    setSearchTerm('');
+  };
+
+  const handleChangeCity = () => {
+    setIsSearching(true);
+    setIsDropdownOpen(true);
+    setSearchTerm('');
+    setActiveIndex(0);
+    setTimeout(() => {
+      searchInputRef.current?.focus();
+    }, 50);
+  };
 
   // ── Handlers ─────────────────────────────────────────────────────────────
   const setField = (field, value) => {
@@ -81,7 +166,11 @@ function PlanTrip() {
 
   const validate = () => {
     const e = {};
-    if (!form.destination) e.destination = 'Please select a destination.';
+    if (!form.destination) {
+      e.destination = 'Please select a destination.';
+    } else if (!isCitySupported(form.destination)) {
+      e.destination = 'This destination is not yet available for trip planning. Please choose another city.';
+    }
     if (form.numberOfDays < 1 || form.numberOfDays > 30)
       e.numberOfDays = 'Days must be between 1 and 30.';
     if (form.travelers < 1 || form.travelers > 20)
@@ -101,8 +190,15 @@ function PlanTrip() {
       setErrors(validationErrors);
       return;
     }
-    // Persist to TripContext and localStorage
-    setTripPreferences(form);
+    // Persist to TripContext and localStorage; clear selectedPlaces if destination changed
+    const isNewCity =
+      trip.destination &&
+      trip.destination.trim().toLowerCase() !== form.destination.trim().toLowerCase();
+
+    setTripPreferences({
+      ...form,
+      ...(isNewCity ? { selectedPlaces: [] } : {}),
+    });
     localStorage.setItem('tripwise_preferences', JSON.stringify(form));
     navigate('/destinations');
   };
@@ -154,31 +250,173 @@ function PlanTrip() {
               <span className="plan-section-hint">Explore popular travel hubs</span>
             </div>
 
-            <div className="destination-grid">
-              {CITIES.map(({ name, state, icon, highlight }) => {
-                const isSelected = form.destination === name;
-                return (
-                  <button
-                    key={name}
-                    type="button"
-                    className={`destination-card-btn${isSelected ? ' selected' : ''}`}
-                    onClick={() => setField('destination', name)}
-                    aria-pressed={isSelected}
-                    id={`dest-${name.toLowerCase()}`}
+            {form.destination && !isSearching ? (
+              /* Selected City State */
+              <div className="selected-city-card" id="selected-city-card">
+                <div className="selected-city-left">
+                  <div className="selected-city-check-badge" aria-hidden="true">✓</div>
+                  <div className="selected-city-avatar">{selectedCity?.icon || '🏙️'}</div>
+                  <div className="selected-city-details">
+                    <div className="selected-city-name">{selectedCity?.name || form.destination}</div>
+                    <div className="selected-city-sub">
+                      <span className="selected-city-state">{selectedCity?.state || ''}</span>
+                      {selectedCity?.highlight && (
+                        <>
+                          <span className="selected-city-bullet">•</span>
+                          <span className="selected-city-highlight">{selectedCity.highlight}</span>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  className="change-city-btn"
+                  id="btn-change-city"
+                  onClick={handleChangeCity}
+                  aria-label={`Change destination city from ${form.destination}`}
+                >
+                  Change City ↻
+                </button>
+              </div>
+            ) : (
+              /* Search Field & Dropdown */
+              <div className="city-search-container" ref={searchRef}>
+                <div className={`city-search-input-wrapper${isDropdownOpen ? ' active-focus' : ''}`}>
+                  <span className="city-search-icon" aria-hidden="true">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                      <circle cx="11" cy="11" r="8" />
+                      <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                    </svg>
+                  </span>
+                  <input
+                    ref={searchInputRef}
+                    id="city-search-input"
+                    type="text"
+                    className="city-search-input"
+                    placeholder="Search for a city..."
+                    value={searchTerm}
+                    onChange={(e) => {
+                      setSearchTerm(e.target.value);
+                      setIsDropdownOpen(true);
+                      setActiveIndex(0);
+                    }}
+                    onFocus={() => setIsDropdownOpen(true)}
+                    onKeyDown={handleKeyDown}
+                    autoComplete="off"
+                    role="combobox"
+                    aria-expanded={isDropdownOpen}
+                    aria-controls="city-search-dropdown"
+                    aria-autocomplete="list"
+                    aria-label="Search for a city"
+                  />
+                  {searchTerm && (
+                    <button
+                      type="button"
+                      className="city-search-clear-btn"
+                      onClick={() => {
+                        setSearchTerm('');
+                        searchInputRef.current?.focus();
+                      }}
+                      aria-label="Clear search text"
+                    >
+                      ✕
+                    </button>
+                  )}
+                  {form.destination && (
+                    <button
+                      type="button"
+                      className="city-search-cancel-btn"
+                      onClick={() => {
+                        setIsSearching(false);
+                        setIsDropdownOpen(false);
+                        setSearchTerm('');
+                      }}
+                      aria-label="Cancel changing city"
+                    >
+                      Cancel
+                    </button>
+                  )}
+                </div>
+
+                {/* Dropdown Results */}
+                {isDropdownOpen && (
+                  <div
+                    id="city-search-dropdown"
+                    className="city-search-dropdown"
+                    role="listbox"
+                    aria-label="Available destination cities"
                   >
-                    <div className="dest-btn-top">
-                      <span className="dest-btn-icon">{icon}</span>
-                      {isSelected && <span className="dest-check-pill">✓ Selected</span>}
+                    <div className="city-dropdown-header">
+                      <span>{searchTerm.trim() ? 'Matching Destinations' : 'Available Destinations (10)'}</span>
+                      <span className="city-dropdown-header-count">
+                        {sortedCities.length} {sortedCities.length === 1 ? 'city' : 'cities'}
+                      </span>
                     </div>
-                    <div className="dest-btn-body">
-                      <div className="dest-btn-name">{name}</div>
-                      <div className="dest-btn-state">{state}</div>
-                      <div className="dest-btn-highlight">{highlight}</div>
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
+
+                    {sortedCities.length > 0 ? (
+                      <div className="city-dropdown-list">
+                        {sortedCities.map((city, idx) => {
+                          const isSelected = form.destination?.toLowerCase() === city.name.toLowerCase();
+                          const isHighlighted = idx === activeIndex;
+                          return (
+                            <div
+                              key={city.id || city.name}
+                              id={`city-option-${city.name.toLowerCase()}`}
+                              role="option"
+                              aria-selected={isSelected}
+                              className={`city-dropdown-item${isHighlighted ? ' highlighted' : ''}${isSelected ? ' is-selected' : ''}`}
+                              onClick={() => selectCity(city)}
+                              onMouseEnter={() => setActiveIndex(idx)}
+                            >
+                              <span className="city-dropdown-item-icon">{city.icon || '🏙️'}</span>
+                              <div className="city-dropdown-item-info">
+                                <div className="city-dropdown-item-header">
+                                  <span className="city-dropdown-item-name">{city.name}</span>
+                                  {isSelected && <span className="city-dropdown-item-badge">✓ Selected</span>}
+                                </div>
+                                <div className="city-dropdown-item-sub">
+                                  <span className="city-dropdown-item-state">{city.state}</span>
+                                  <span className="city-dropdown-item-dot">•</span>
+                                  <span className="city-dropdown-item-highlight">{city.highlight}</span>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    ) : (
+                      <div className="city-dropdown-empty">
+                        <div className="city-empty-icon">🔍</div>
+                        <div className="city-empty-title">No cities found</div>
+                        <div className="city-empty-sub">Try another city name</div>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {!cityIsSupported && form.destination && (
+              <div className="unsupported-city-banner" role="status">
+                <div className="unsupported-banner-text">
+                  <span className="unsupported-banner-icon" aria-hidden="true">ℹ️</span>
+                  <p>
+                    Detailed recommendations for <strong>{form.destination}</strong> are coming soon.
+                  </p>
+                </div>
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="sm"
+                  onClick={handleChangeCity}
+                  id="btn-choose-another-city"
+                >
+                  Choose Another City
+                </Button>
+              </div>
+            )}
             {errors.destination && (
               <span className="form-error" role="alert">✕ {errors.destination}</span>
             )}

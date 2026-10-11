@@ -34,9 +34,9 @@
 }
 
 .badge-within {
-  background: #ecfdf5;
-  color: #059669;
-  border: 1px solid #a7f3d0;
+  background: #eff6ff;
+  color: #1d4ed8;
+  border: 1px solid #bfdbfe;
 }
 
 .badge-near {
@@ -108,7 +108,7 @@
 }
 
 .font-safe {
-  color: #059669;
+  color: #2563eb;
 }
 
 .font-danger {
@@ -202,7 +202,7 @@
 }
 
 .progress-fill.within {
-  background: linear-gradient(90deg, #14b8a6, #0d9488);
+  background: linear-gradient(90deg, #22c7e8, #3b82f6);
 }
 
 .progress-fill.near {
@@ -294,7 +294,7 @@
   align-items: flex-start;
   gap: 1.25rem;
   padding: 1.75rem;
-  background: #f0fdfa;
+  background: linear-gradient(120deg, #eff6ff, #f5f3ff);
   border: 1.5px solid var(--color-primary-200);
   border-radius: var(--border-radius-xl);
 }

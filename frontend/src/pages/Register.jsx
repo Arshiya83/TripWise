@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import Button from '../components/Button';
+import BrandMark from '../components/BrandMark';
 import './Auth.css';
 
 function Register() {
@@ -15,11 +16,10 @@ function Register() {
     confirmPassword: '',
   });
   const [showPassword, setShowPassword] = useState(false);
-  const [showConfirm, setShowConfirm]   = useState(false);
-  const [errors, setErrors]             = useState({});
-  const [serverError, setServerError]   = useState('');
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [errors, setErrors] = useState({});
+  const [serverError, setServerError] = useState('');
 
-  // ── Validation ─────────────────────────────────────────────────
   const validate = () => {
     const e = {};
     if (!form.name.trim()) {
@@ -59,6 +59,7 @@ function Register() {
       setErrors(validationErrors);
       return;
     }
+
     const result = await register(form.name, form.email, form.password);
     if (result.success) {
       navigate('/dashboard', { replace: true });
@@ -70,72 +71,49 @@ function Register() {
   return (
     <div className="auth-page">
       <div className="auth-split-wrapper animate-fade-in-up">
-        {/* ── Left Side: Travel Showcase Branding ── */}
         <div className="auth-brand-side">
           <img
-            src="https://images.unsplash.com/photo-1477587458883-47145ed94245?auto=format&fit=crop&w=1000&q=80"
-            alt="Majestic historic palace architecture"
+            src="https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=1200&q=80"
+            alt="Travel destination with mountains and a lake"
             className="auth-brand-bg"
           />
           <div className="auth-brand-overlay" />
 
           <div className="auth-brand-content">
-            <Link to="/" className="auth-brand-logo" aria-label="TripWise homepage">
-              <span className="navbar-logo-icon" aria-hidden="true">✈</span>
+            <div className="auth-brand-logo">
+              <span className="navbar-logo-icon" aria-hidden="true"><BrandMark /></span>
               TripWise
-            </Link>
-
-            <div className="auth-brand-hero-text">
-              <span className="badge badge-accent" style={{ marginBottom: '0.85rem' }}>
-                Join TripWise Today
-              </span>
-              <h2 className="auth-brand-title">
-                Smart Itineraries Crafted in Seconds.
-              </h2>
-              <p className="auth-brand-subtitle">
-                Create a free account to generate personalized itineraries, save dream trips, and optimize travel budgets.
-              </p>
-
-              <ul className="auth-perks-list">
-                <li className="auth-perk-item">
-                  <span className="auth-perk-icon">✓</span>
-                  <span>100% Free personalized travel planning</span>
-                </li>
-                <li className="auth-perk-item">
-                  <span className="auth-perk-icon">✓</span>
-                  <span>Save multiple upcoming & past trips</span>
-                </li>
-                <li className="auth-perk-item">
-                  <span className="auth-perk-icon">✓</span>
-                  <span>Export itineraries to PDF anytime</span>
-                </li>
-              </ul>
             </div>
 
-            <div className="auth-testimonial-badge">
-              🌍 Trusted by travel lovers exploring Hyderabad, Goa, Jaipur, and beyond.
+            <div className="auth-brand-hero-text">
+              <span className="badge badge-accent auth-badge">Start planning</span>
+              <h2 className="auth-brand-title">Your next trip begins here.</h2>
+              <p className="auth-brand-subtitle">
+                Build your itinerary, save favorite cities, and compare destinations in one seamless planning flow.
+              </p>
+            </div>
+
+            <div className="auth-trust-row">
+              <span>✓ Personalized trips</span>
+              <span>✓ Budget-aware planning</span>
             </div>
           </div>
         </div>
 
-        {/* ── Right Side: Register Form ── */}
         <div className="auth-form-side">
           <div className="auth-header">
-            <span className="badge badge-primary auth-header-badge">Get Started Free</span>
+            <span className="badge badge-primary auth-header-badge">Get started</span>
             <h1 className="auth-title">Create your account</h1>
-            <p className="auth-subtitle">Plan smarter trips today with zero hassle</p>
+            <p className="auth-subtitle">Plan smarter trips from day one.</p>
           </div>
 
-          {/* Server Error */}
           {serverError && (
             <div className="auth-server-error" role="alert">
               <span>⚠</span> {serverError}
             </div>
           )}
 
-          {/* Form */}
           <form className="auth-form" onSubmit={handleSubmit} noValidate>
-            {/* Name */}
             <div className="form-group">
               <label htmlFor="reg-name" className="form-label">
                 Full name
@@ -145,24 +123,18 @@ function Register() {
                 type="text"
                 name="name"
                 autoComplete="name"
-                placeholder="Arshiya Khan"
+                placeholder="Your full name"
                 className={`form-input${errors.name ? ' error' : ''}`}
                 value={form.name}
                 onChange={handleChange}
                 disabled={loading}
-                aria-describedby={errors.name ? 'reg-name-err' : undefined}
               />
-              {errors.name && (
-                <span id="reg-name-err" className="form-error" role="alert">
-                  ✕ {errors.name}
-                </span>
-              )}
+              {errors.name && <span className="form-error">✕ {errors.name}</span>}
             </div>
 
-            {/* Email */}
             <div className="form-group">
               <label htmlFor="reg-email" className="form-label">
-                Email address
+                Email
               </label>
               <input
                 id="reg-email"
@@ -174,16 +146,10 @@ function Register() {
                 value={form.email}
                 onChange={handleChange}
                 disabled={loading}
-                aria-describedby={errors.email ? 'reg-email-err' : undefined}
               />
-              {errors.email && (
-                <span id="reg-email-err" className="form-error" role="alert">
-                  ✕ {errors.email}
-                </span>
-              )}
+              {errors.email && <span className="form-error">✕ {errors.email}</span>}
             </div>
 
-            {/* Password */}
             <div className="form-group">
               <label htmlFor="reg-password" className="form-label">
                 Password
@@ -199,7 +165,6 @@ function Register() {
                   value={form.password}
                   onChange={handleChange}
                   disabled={loading}
-                  aria-describedby={errors.password ? 'reg-pwd-err' : undefined}
                 />
                 <button
                   type="button"
@@ -210,14 +175,9 @@ function Register() {
                   {showPassword ? '🙈' : '👁'}
                 </button>
               </div>
-              {errors.password && (
-                <span id="reg-pwd-err" className="form-error" role="alert">
-                  ✕ {errors.password}
-                </span>
-              )}
+              {errors.password && <span className="form-error">✕ {errors.password}</span>}
             </div>
 
-            {/* Confirm Password */}
             <div className="form-group">
               <label htmlFor="reg-confirm" className="form-label">
                 Confirm Password
@@ -233,7 +193,6 @@ function Register() {
                   value={form.confirmPassword}
                   onChange={handleChange}
                   disabled={loading}
-                  aria-describedby={errors.confirmPassword ? 'reg-confirm-err' : undefined}
                 />
                 <button
                   type="button"
@@ -244,32 +203,19 @@ function Register() {
                   {showConfirm ? '🙈' : '👁'}
                 </button>
               </div>
-              {errors.confirmPassword && (
-                <span id="reg-confirm-err" className="form-error" role="alert">
-                  ✕ {errors.confirmPassword}
-                </span>
-              )}
+              {errors.confirmPassword && <span className="form-error">✕ {errors.confirmPassword}</span>}
             </div>
 
-            {/* Submit */}
-            <Button
-              type="submit"
-              variant="primary"
-              size="lg"
-              fullWidth
-              loading={loading}
-              id="register-submit-btn"
-            >
-              {loading ? 'Creating account…' : 'Create Free Account →'}
+            <Button type="submit" variant="primary" size="lg" fullWidth loading={loading} id="register-submit-btn">
+              {loading ? 'Creating Account…' : 'Create Account'}
             </Button>
           </form>
 
-          {/* Footer links */}
           <div className="auth-footer">
             <p>
               Already have an account?{' '}
               <Link to="/login" className="auth-link">
-                Sign in →
+                Sign in
               </Link>
             </p>
           </div>
