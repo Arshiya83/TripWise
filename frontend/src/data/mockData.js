@@ -2,6 +2,10 @@
  * TripWise Mock Data
  * Curated destination, attractions, hotels, restaurants, and sample trips
  * for modern travel tech presentation.
+ *
+ * Architecture Note:
+ * `getHotelsByDestination(destination)` is the canonical way to retrieve
+ * city-specific hotels. Never filter MOCK_HOTELS manually in page components.
  */
 
 export const POPULAR_CITIES = [
@@ -63,7 +67,7 @@ export const POPULAR_CITIES = [
 ];
 
 export const DESTINATION_PLACES = [
-  // ── Hyderabad ──
+  // -- Hyderabad --
   {
     id: 'hyd-charminar',
     city: 'Hyderabad',
@@ -72,7 +76,7 @@ export const DESTINATION_PLACES = [
     image: 'https://images.unsplash.com/photo-1605649487212-47bdab064df7?auto=format&fit=crop&w=800&q=80',
     description: 'Iconic 16th-century four-minaret mosque and bustling lacquer bangle bazaar in old city.',
     duration: '2 - 3 Hours',
-    entryFee: '₹25 / person',
+    entryFee: 'Rs.25 / person',
     bestTime: '4:00 PM - 7:30 PM',
     location: 'Old City, Hyderabad',
     rating: 4.7,
@@ -88,7 +92,7 @@ export const DESTINATION_PLACES = [
     image: 'https://images.unsplash.com/photo-1627894483216-2138af692e32?auto=format&fit=crop&w=800&q=80',
     description: 'Medieval citadel renowned for acoustic engineering, diamond vaults and sunset panoramas.',
     duration: '3 - 4 Hours',
-    entryFee: '₹25 / person',
+    entryFee: 'Rs.25 / person',
     bestTime: '3:30 PM - 6:30 PM',
     location: 'Ibrahim Bagh, Hyderabad',
     rating: 4.8,
@@ -104,7 +108,7 @@ export const DESTINATION_PLACES = [
     image: 'https://images.unsplash.com/photo-1600100397608-f010a7f5f1f7?auto=format&fit=crop&w=800&q=80',
     description: 'Heart-shaped lake featuring the worlds tallest monolithic stone statue of Gautama Buddha.',
     duration: '1.5 - 2 Hours',
-    entryFee: '₹100 (Speedboat)',
+    entryFee: 'Rs.100 (Speedboat)',
     bestTime: '5:30 PM - 8:00 PM',
     location: 'Necklace Road, Hyderabad',
     rating: 4.6,
@@ -120,7 +124,7 @@ export const DESTINATION_PLACES = [
     image: 'https://images.unsplash.com/photo-1590050752117-238cb0fb12b1?auto=format&fit=crop&w=800&q=80',
     description: 'Lavish palace of the Nizams with grand chandelier courtyards and vintage car collection.',
     duration: '2 Hours',
-    entryFee: '₹100 / person',
+    entryFee: 'Rs.100 / person',
     bestTime: '10:00 AM - 1:00 PM',
     location: 'Motigall, Hyderabad',
     rating: 4.7,
@@ -134,9 +138,9 @@ export const DESTINATION_PLACES = [
     name: 'Ramoji Film City',
     category: 'Entertainment',
     image: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=800&q=80',
-    description: 'World’s largest film studio complex featuring themed film sets, adventure rides and live shows.',
+    description: "World's largest film studio complex featuring themed film sets, adventure rides and live shows.",
     duration: 'Full Day (6-8 Hours)',
-    entryFee: '₹1,350 / person',
+    entryFee: 'Rs.1,350 / person',
     bestTime: '9:00 AM - 5:30 PM',
     location: 'Hayathnagar, Hyderabad',
     rating: 4.7,
@@ -150,9 +154,9 @@ export const DESTINATION_PLACES = [
     name: 'Salar Jung Museum',
     category: 'Culture',
     image: 'https://images.unsplash.com/photo-1566127444979-b3d2b654e3d7?auto=format&fit=crop&w=800&q=80',
-    description: 'One of India’s top national museums housing the Veiled Rebecca and royal antiquities.',
+    description: "One of India's top national museums housing the Veiled Rebecca and royal antiquities.",
     duration: '2 - 3 Hours',
-    entryFee: '₹50 / person',
+    entryFee: 'Rs.50 / person',
     bestTime: '10:30 AM - 2:00 PM',
     location: 'Darulshifa, Hyderabad',
     rating: 4.6,
@@ -161,7 +165,7 @@ export const DESTINATION_PLACES = [
     lng: 78.4804,
   },
 
-  // ── Goa ──
+  // -- Goa --
   {
     id: 'goa-baga',
     city: 'Goa',
@@ -186,7 +190,7 @@ export const DESTINATION_PLACES = [
     image: 'https://images.unsplash.com/photo-1582510003544-4d00b7f74220?auto=format&fit=crop&w=800&q=80',
     description: '17th-century Portuguese coastal fort offering breathtaking Arabian Sea horizon vistas.',
     duration: '1.5 - 2 Hours',
-    entryFee: '₹50 / person',
+    entryFee: 'Rs.50 / person',
     bestTime: '9:00 AM - 11:30 AM',
     location: 'Sinquerim, Goa',
     rating: 4.7,
@@ -199,7 +203,7 @@ export const DESTINATION_PLACES = [
     city: 'Goa',
     name: 'Basilica of Bom Jesus',
     category: 'Heritage',
-    image: 'https://images.unsplash.com/photo-1582510003544-4d00b7f74220?auto=format&fit=crop&w=800&q=80',
+    image: 'https://images.unsplash.com/photo-1614680376739-414d95ff43df?auto=format&fit=crop&w=800&q=80',
     description: 'UNESCO World Heritage baroque church containing the sacred mortal remains of St. Francis Xavier.',
     duration: '1 - 2 Hours',
     entryFee: 'Free',
@@ -218,7 +222,7 @@ export const DESTINATION_PLACES = [
     image: 'https://images.unsplash.com/photo-1544735716-392fe2489ffa?auto=format&fit=crop&w=800&q=80',
     description: 'Four-tiered sea of milk cascade nestled amidst dense Bhagwan Mahaveer Sanctuary jungles.',
     duration: '4 - 5 Hours',
-    entryFee: '₹500 (Jeep Safari)',
+    entryFee: 'Rs.500 (Jeep Safari)',
     bestTime: '8:00 AM - 1:00 PM',
     location: 'Sonaulim, Goa border',
     rating: 4.9,
@@ -227,7 +231,7 @@ export const DESTINATION_PLACES = [
     lng: 74.3143,
   },
 
-  // ── Jaipur ──
+  // -- Jaipur --
   {
     id: 'jpr-hawa-mahal',
     city: 'Jaipur',
@@ -236,7 +240,7 @@ export const DESTINATION_PLACES = [
     image: 'https://images.unsplash.com/photo-1599661046289-e31897846e41?auto=format&fit=crop&w=800&q=80',
     description: 'Five-story pink sandstone honeycomb facade with 953 ornate latticed jharokhas.',
     duration: '1 - 2 Hours',
-    entryFee: '₹50 / person',
+    entryFee: 'Rs.50 / person',
     bestTime: '8:30 AM - 11:00 AM',
     location: 'Badi Choupad, Jaipur',
     rating: 4.8,
@@ -252,7 +256,7 @@ export const DESTINATION_PLACES = [
     image: 'https://images.unsplash.com/photo-1477587458883-47145ed94245?auto=format&fit=crop&w=800&q=80',
     description: 'Majestic Rajput hilltop fortress featuring the glimmering Sheesh Mahal (Mirror Palace).',
     duration: '3 - 4 Hours',
-    entryFee: '₹100 / person',
+    entryFee: 'Rs.100 / person',
     bestTime: '9:00 AM - 1:00 PM',
     location: 'Amer, Jaipur',
     rating: 4.9,
@@ -268,7 +272,7 @@ export const DESTINATION_PLACES = [
     image: 'https://images.unsplash.com/photo-1599661046827-dacff0f4f0f4?auto=format&fit=crop&w=800&q=80',
     description: 'Royal residence blending Mughal and Rajput architecture with sprawling courtyards and armories.',
     duration: '2 - 3 Hours',
-    entryFee: '₹200 / person',
+    entryFee: 'Rs.200 / person',
     bestTime: '10:00 AM - 2:00 PM',
     location: 'Gangori Bazaar, Jaipur',
     rating: 4.7,
@@ -277,16 +281,16 @@ export const DESTINATION_PLACES = [
     lng: 75.8237,
   },
 
-  // ── Delhi ──
+  // -- Delhi --
   {
     id: 'del-qutub',
     city: 'Delhi',
     name: 'Qutub Minar Complex',
     category: 'Heritage',
-    image: 'https://images.unsplash.com/photo-1598091383021-15ddea10925d?auto=format&fit=crop&w=800&q=80',
+    image: 'https://images.unsplash.com/photo-1548013146-72479768bada?auto=format&fit=crop&w=800&q=80',
     description: '73-meter fluted red sandstone minaret tower constructed in 1192 surrounded by ancient ruins.',
     duration: '2 Hours',
-    entryFee: '₹40 / person',
+    entryFee: 'Rs.40 / person',
     bestTime: '9:00 AM - 12:00 PM',
     location: 'Mehrauli, New Delhi',
     rating: 4.8,
@@ -299,7 +303,7 @@ export const DESTINATION_PLACES = [
     city: 'Delhi',
     name: 'India Gate & Kartavya Path',
     category: 'Heritage',
-    image: 'https://images.unsplash.com/photo-1598977123118-4e30ba3c4f5b?auto=format&fit=crop&w=800&q=80',
+    image: 'https://images.unsplash.com/photo-1587474260584-136574528ed5?auto=format&fit=crop&w=800&q=80',
     description: 'Iconic war memorial archway surrounded by lush lawns, fountains, and illuminated evening avenues.',
     duration: '1 - 2 Hours',
     entryFee: 'Free',
@@ -311,7 +315,7 @@ export const DESTINATION_PLACES = [
     lng: 77.2295,
   },
 
-  // ── Mumbai ──
+  // -- Mumbai --
   {
     id: 'mum-gateway',
     city: 'Mumbai',
@@ -334,7 +338,7 @@ export const DESTINATION_PLACES = [
     name: 'Marine Drive & Chowpatty',
     category: 'Nature',
     image: 'https://images.unsplash.com/photo-1567157577867-05ccb1388e66?auto=format&fit=crop&w=800&q=80',
-    description: '3.6-kilometer C-shaped boulevard famously known as the Queen’s Necklace with street food stalls.',
+    description: "3.6-kilometer C-shaped boulevard famously known as the Queen's Necklace with street food stalls.",
     duration: '2 Hours',
     entryFee: 'Free',
     bestTime: '5:00 PM - 8:30 PM',
@@ -346,28 +350,92 @@ export const DESTINATION_PLACES = [
   },
 ];
 
+// -------------------------------------------------------------------------
+// MOCK_HOTELS — strictly organized by city
+// NEVER mix hotels from different cities.
+// Use getHotelsByDestination() as the sole access point from components.
+// -------------------------------------------------------------------------
 export const MOCK_HOTELS = [
+  // === DELHI hotels ===
   {
-    id: 'hotel-1',
+    id: 'hotel-del-1',
+    name: 'The Imperial New Delhi',
+    city: 'Delhi',
+    rating: 4.9,
+    reviewsCount: 2100,
+    priceRange: 'Rs.Rs.Rs.Rs.',
+    pricePerNight: 22000,
+    location: 'Janpath, Connaught Place, New Delhi',
+    distance: '4.2 km from India Gate',
+    image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80',
+    tags: ['5-Star Heritage', 'Art Deco', 'Central Location'],
+    amenities: ['Free WiFi', 'Infinity Pool', 'Spa', 'Heritage Dining'],
+  },
+  {
+    id: 'hotel-del-2',
+    name: 'Taj Mahal Hotel New Delhi',
+    city: 'Delhi',
+    rating: 4.8,
+    reviewsCount: 1870,
+    priceRange: 'Rs.Rs.Rs.Rs.',
+    pricePerNight: 18500,
+    location: 'Mansingh Road, New Delhi',
+    distance: '2.1 km from India Gate',
+    image: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=800&q=80',
+    tags: ['5-Star Luxury', 'Heritage', 'Diplomatic Quarter'],
+    amenities: ['Free Breakfast', 'Pool', 'Fitness Center', 'Fine Dining'],
+  },
+  {
+    id: 'hotel-del-3',
+    name: 'The Lalit New Delhi',
+    city: 'Delhi',
+    rating: 4.6,
+    reviewsCount: 1420,
+    priceRange: 'Rs.Rs.Rs.',
+    pricePerNight: 9500,
+    location: 'Barakhamba Avenue, Connaught Place',
+    distance: '3.8 km from Red Fort',
+    image: 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=800&q=80',
+    tags: ['City Center', 'Business', 'Great Value'],
+    amenities: ['Free WiFi', 'Rooftop Pool', 'Spa', 'Multiple Restaurants'],
+  },
+  {
+    id: 'hotel-del-4',
+    name: 'Bloomrooms @ New Delhi Station',
+    city: 'Delhi',
+    rating: 4.3,
+    reviewsCount: 980,
+    priceRange: 'Rs.Rs.',
+    pricePerNight: 3800,
+    location: 'Paharganj, Central Delhi',
+    distance: '5.5 km from Qutub Minar',
+    image: 'https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?auto=format&fit=crop&w=800&q=80',
+    tags: ['Budget Friendly', 'Central', 'Well Connected'],
+    amenities: ['Free WiFi', 'AC Rooms', '24hr Front Desk'],
+  },
+
+  // === HYDERABAD hotels ===
+  {
+    id: 'hotel-hyd-1',
     name: 'Taj Falaknuma Palace',
     city: 'Hyderabad',
     rating: 4.9,
     reviewsCount: 890,
-    priceRange: '₹₹₹₹',
+    priceRange: 'Rs.Rs.Rs.Rs.',
     pricePerNight: 28000,
     location: 'Engine Bowli, Falaknuma',
     distance: '3.8 km from Charminar',
-    image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80',
+    image: 'https://images.unsplash.com/photo-1549294413-26f195200c16?auto=format&fit=crop&w=800&q=80',
     tags: ['Luxury Palace', 'Heritage', 'Pool', 'Fine Dining'],
     amenities: ['Free WiFi', 'Infinity Pool', 'Spa', 'Royal Butler'],
   },
   {
-    id: 'hotel-2',
+    id: 'hotel-hyd-2',
     name: 'ITC Kakatiya Luxury Collection',
     city: 'Hyderabad',
     rating: 4.7,
     reviewsCount: 1420,
-    priceRange: '₹₹₹',
+    priceRange: 'Rs.Rs.Rs.',
     pricePerNight: 8500,
     location: 'Begumpet, Hyderabad',
     distance: '2.1 km from Hussain Sagar',
@@ -376,12 +444,12 @@ export const MOCK_HOTELS = [
     amenities: ['Free Breakfast', 'Pool', 'Fitness Center', 'Cocktail Bar'],
   },
   {
-    id: 'hotel-3',
+    id: 'hotel-hyd-3',
     name: 'The Park Hyderabad',
     city: 'Hyderabad',
     rating: 4.5,
     reviewsCount: 1100,
-    priceRange: '₹₹',
+    priceRange: 'Rs.Rs.',
     pricePerNight: 5200,
     location: 'Somajiguda, Lake View',
     distance: '1.2 km from Hussain Sagar',
@@ -389,13 +457,15 @@ export const MOCK_HOTELS = [
     tags: ['Lake View', 'Boutique', 'Great Value'],
     amenities: ['Lake View Rooms', 'Free WiFi', 'Rooftop Lounge'],
   },
+
+  // === GOA hotels ===
   {
-    id: 'hotel-4',
+    id: 'hotel-goa-1',
     name: 'Alila Diwa Resort & Spa',
     city: 'Goa',
     rating: 4.8,
     reviewsCount: 1650,
-    priceRange: '₹₹₹',
+    priceRange: 'Rs.Rs.Rs.',
     pricePerNight: 11000,
     location: 'Majorda Beach, South Goa',
     distance: '800 m from Majorda Beach',
@@ -404,20 +474,137 @@ export const MOCK_HOTELS = [
     amenities: ['Infinity Pool', 'Spa by Clarins', 'Beach Shuttle'],
   },
   {
-    id: 'hotel-5',
+    id: 'hotel-goa-2',
+    name: 'The Leela Goa',
+    city: 'Goa',
+    rating: 4.9,
+    reviewsCount: 2100,
+    priceRange: 'Rs.Rs.Rs.Rs.',
+    pricePerNight: 19000,
+    location: 'Mobor, Cavelossim, South Goa',
+    distance: '1 km from Cavelossim Beach',
+    image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80',
+    tags: ['Luxury Beachfront', '5-Star', 'Lagoon Pool'],
+    amenities: ['Private Beach', 'Multiple Pools', 'Golf Course', 'Spa'],
+  },
+  {
+    id: 'hotel-goa-3',
+    name: 'Siolim House Heritage Boutique',
+    city: 'Goa',
+    rating: 4.6,
+    reviewsCount: 780,
+    priceRange: 'Rs.Rs.Rs.',
+    pricePerNight: 8500,
+    location: 'Siolim, North Goa',
+    distance: '3.2 km from Baga Beach',
+    image: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=800&q=80',
+    tags: ['Portuguese Heritage', 'Boutique', 'Garden Pool'],
+    amenities: ['Heritage Architecture', 'Pool', 'Library', 'Free Breakfast'],
+  },
+
+  // === JAIPUR hotels ===
+  {
+    id: 'hotel-jpr-1',
     name: 'Rambagh Palace',
     city: 'Jaipur',
     rating: 4.9,
     reviewsCount: 920,
-    priceRange: '₹₹₹₹',
+    priceRange: 'Rs.Rs.Rs.Rs.',
     pricePerNight: 32000,
     location: 'Bhawani Singh Road, Jaipur',
     distance: '3.5 km from City Palace',
-    image: 'https://images.unsplash.com/photo-1549294413-26f195200c16?auto=format&fit=crop&w=800&q=80',
+    image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80',
     tags: ['Royal Palace', 'Luxury', 'Heritage Gardens'],
     amenities: ['Peacock Gardens', 'Polo Bar', 'Jiva Spa'],
   },
+  {
+    id: 'hotel-jpr-2',
+    name: 'Samode Haveli',
+    city: 'Jaipur',
+    rating: 4.7,
+    reviewsCount: 1140,
+    priceRange: 'Rs.Rs.Rs.',
+    pricePerNight: 13000,
+    location: 'Gangapole, Walled City, Jaipur',
+    distance: '1.8 km from Hawa Mahal',
+    image: 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=800&q=80',
+    tags: ['Heritage Haveli', 'Walled City', 'Rooftop Pool'],
+    amenities: ['Rooftop Pool', 'Rajasthani Cuisine', 'Courtyards', 'WiFi'],
+  },
+  {
+    id: 'hotel-jpr-3',
+    name: 'Pearl Palace Heritage',
+    city: 'Jaipur',
+    rating: 4.5,
+    reviewsCount: 1890,
+    priceRange: 'Rs.Rs.',
+    pricePerNight: 3200,
+    location: 'Hathroi Fort Area, Jaipur',
+    distance: '2.5 km from Amber Fort',
+    image: 'https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?auto=format&fit=crop&w=800&q=80',
+    tags: ['Budget Heritage', 'Rooftop Cafe', 'Award-Winning'],
+    amenities: ['Rooftop Garden', 'Free Breakfast', 'Heritage Rooms', 'WiFi'],
+  },
+
+  // === MUMBAI hotels ===
+  {
+    id: 'hotel-mum-1',
+    name: 'The Taj Mahal Palace Mumbai',
+    city: 'Mumbai',
+    rating: 4.9,
+    reviewsCount: 3400,
+    priceRange: 'Rs.Rs.Rs.Rs.',
+    pricePerNight: 35000,
+    location: 'Apollo Bunder, Colaba, Mumbai',
+    distance: '100 m from Gateway of India',
+    image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80',
+    tags: ['Iconic Landmark', 'Heritage Palace', 'Sea View'],
+    amenities: ['Sea-facing Rooms', 'Multiple Fine Dining', 'Pool', 'Spa'],
+  },
+  {
+    id: 'hotel-mum-2',
+    name: 'ITC Grand Central Mumbai',
+    city: 'Mumbai',
+    rating: 4.7,
+    reviewsCount: 1780,
+    priceRange: 'Rs.Rs.Rs.',
+    pricePerNight: 10500,
+    location: 'Dr. B.A. Road, Parel, Mumbai',
+    distance: '4.5 km from Marine Drive',
+    image: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=800&q=80',
+    tags: ['5-Star', 'Business Hub', 'City View'],
+    amenities: ['Infinity Pool', 'Spa', 'Fine Dining', 'Fitness Center'],
+  },
+  {
+    id: 'hotel-mum-3',
+    name: 'Hotel Sea Princess',
+    city: 'Mumbai',
+    rating: 4.4,
+    reviewsCount: 1230,
+    priceRange: 'Rs.Rs.',
+    pricePerNight: 6800,
+    location: 'Juhu Beach, Mumbai',
+    distance: '300 m from Juhu Beach',
+    image: 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=800&q=80',
+    tags: ['Beach View', 'Bollywood District', 'Great Value'],
+    amenities: ['Sea View Rooms', 'Pool', 'Multi-cuisine Restaurant', 'WiFi'],
+  },
 ];
+
+/**
+ * getHotelsByDestination
+ * Canonical function to retrieve hotels for a specific city destination.
+ * Always use this function in components — never filter MOCK_HOTELS directly.
+ * Architecture note: replace implementation with API call when backend is ready.
+ *
+ * @param {string} destination - City name (e.g. "Delhi", "Goa")
+ * @returns {Array} Array of hotel objects for that city
+ */
+export function getHotelsByDestination(destination) {
+  if (!destination) return [];
+  const cityLower = destination.trim().toLowerCase();
+  return MOCK_HOTELS.filter((h) => h.city.trim().toLowerCase() === cityLower);
+}
 
 export const MOCK_RESTAURANTS = [
   {
@@ -427,7 +614,7 @@ export const MOCK_RESTAURANTS = [
     cuisine: 'Authentic Hyderabadi & Mughlai',
     rating: 4.7,
     reviewsCount: 3800,
-    priceRange: '₹₹',
+    priceRange: 'Rs.Rs.',
     avgCostForTwo: 900,
     location: 'Secunderabad & Charminar',
     distance: '1.5 km from destination',
@@ -442,7 +629,7 @@ export const MOCK_RESTAURANTS = [
     cuisine: 'Mughlai, North Indian & Kebabs',
     rating: 4.6,
     reviewsCount: 2900,
-    priceRange: '₹₹',
+    priceRange: 'Rs.Rs.',
     avgCostForTwo: 750,
     location: 'RTC X Roads, Hyderabad',
     distance: '2.8 km from Hussain Sagar',
@@ -457,7 +644,7 @@ export const MOCK_RESTAURANTS = [
     cuisine: 'Irani Cafe, Bakery & Chai',
     rating: 4.8,
     reviewsCount: 4100,
-    priceRange: '₹',
+    priceRange: 'Rs.',
     avgCostForTwo: 200,
     location: 'Beside Charminar',
     distance: '100 m from Charminar',
@@ -467,12 +654,12 @@ export const MOCK_RESTAURANTS = [
   },
   {
     id: 'rest-4',
-    name: 'Fisherman’s Wharf',
+    name: "Fisherman's Wharf",
     city: 'Goa',
     cuisine: 'Goan Coastal & Seafood',
     rating: 4.8,
     reviewsCount: 2100,
-    priceRange: '₹₹₹',
+    priceRange: 'Rs.Rs.Rs.',
     avgCostForTwo: 1800,
     location: 'Cavelossim & Panjim',
     distance: '3.2 km from Beach',
@@ -487,7 +674,7 @@ export const MOCK_RESTAURANTS = [
     cuisine: 'Traditional Rajasthani Thali',
     rating: 4.9,
     reviewsCount: 3400,
-    priceRange: '₹₹₹',
+    priceRange: 'Rs.Rs.Rs.',
     avgCostForTwo: 2200,
     location: 'Tonk Road, Jaipur',
     distance: '8.5 km from City Center',
@@ -587,7 +774,7 @@ export const SAMPLE_ITINERARY = [
         category: 'Nightlife',
         icon: '🍸',
         duration: '3 Hours',
-        description: 'Relax with panoramic city skyline views, live acoustic music, and chef’s tasting menu.',
+        description: "Relax with panoramic city skyline views, live acoustic music, and chef's tasting menu.",
         transitAfter: 'Trip completion',
       },
     ],
@@ -638,8 +825,8 @@ export const MOCK_SAVED_TRIPS = [
     coverImage: 'https://images.unsplash.com/photo-1605649487212-47bdab064df7?auto=format&fit=crop&w=800&q=80',
     numberOfDays: 3,
     travelers: 2,
-    budget: '₹28,000',
-    spentBudget: '₹22,400',
+    budget: 'Rs.28,000',
+    spentBudget: 'Rs.22,400',
     travelType: 'Couple',
     status: 'Upcoming',
     dates: 'Nov 14 - Nov 16, 2026',
@@ -651,8 +838,8 @@ export const MOCK_SAVED_TRIPS = [
     coverImage: 'https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?auto=format&fit=crop&w=800&q=80',
     numberOfDays: 4,
     travelers: 4,
-    budget: '₹45,000',
-    spentBudget: '₹41,200',
+    budget: 'Rs.45,000',
+    spentBudget: 'Rs.41,200',
     travelType: 'Friends',
     status: 'Completed',
     dates: 'Jan 05 - Jan 09, 2026',
@@ -664,8 +851,8 @@ export const MOCK_SAVED_TRIPS = [
     coverImage: 'https://images.unsplash.com/photo-1477587458883-47145ed94245?auto=format&fit=crop&w=800&q=80',
     numberOfDays: 3,
     travelers: 1,
-    budget: '₹18,000',
-    spentBudget: '₹15,800',
+    budget: 'Rs.18,000',
+    spentBudget: 'Rs.15,800',
     travelType: 'Solo',
     status: 'Draft',
     dates: 'Dec 20 - Dec 23, 2026',

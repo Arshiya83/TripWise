@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useTrip } from '../context/TripContext';
 import Button from '../components/Button';
-import { MOCK_HOTELS } from '../data/mockData';
+import { getHotelsByDestination } from '../data/mockData';
 import './Hotels.css';
 
 function Hotels() {
@@ -10,12 +10,11 @@ function Hotels() {
   const { trip } = useTrip();
 
   const currentCity = trip.destination || 'Hyderabad';
-  const [selectedHotels, setSelectedHotels] = useState(['hotel-2']);
+  const [selectedHotels, setSelectedHotels] = useState([]);
 
-  const hotels = MOCK_HOTELS.filter(
-    (h) => !currentCity || h.city.toLowerCase() === currentCity.toLowerCase()
-  );
-  const displayHotels = hotels.length > 0 ? hotels : MOCK_HOTELS;
+  // Use canonical helper — ONLY returns hotels for the current destination city.
+  // Never falls back to all hotels. Architecture: replace body with API call when backend is ready.
+  const displayHotels = getHotelsByDestination(currentCity);
 
   const toggleSelectHotel = (id) => {
     setSelectedHotels((prev) =>
@@ -62,6 +61,18 @@ function Hotels() {
         </div>
 
         {/* ── Hotels Grid ──────────────────────────── */}
+        {displayHotels.length === 0 ? (
+          <div className="card" style={{ padding: '2.5rem', textAlign: 'center', marginTop: '2rem' }}>
+            <div style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>🏨</div>
+            <h3 style={{ marginBottom: '0.5rem' }}>No hotels listed for {currentCity} yet</h3>
+            <p style={{ color: 'var(--color-text-muted)', marginBottom: '1.5rem' }}>
+              Hotel recommendations for {currentCity} will be available soon. Check back later or browse other cities.
+            </p>
+            <Button variant="outline" size="md" onClick={() => navigate('/itinerary')}>
+              ← Back to Itinerary
+            </Button>
+          </div>
+        ) : (
         <div className="stays-grid">
           {displayHotels.map((hotel) => {
             const isSelected = selectedHotels.includes(hotel.id);
@@ -125,6 +136,7 @@ function Hotels() {
             );
           })}
         </div>
+        )}
       </div>
     </div>
   );

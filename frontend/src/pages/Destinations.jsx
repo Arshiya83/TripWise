@@ -4,7 +4,12 @@ import { useTrip, isPlaceInCity } from '../context/TripContext';
 import Button from '../components/Button';
 import SmartPlannerModal from '../components/SmartPlannerModal';
 import { isCitySupported, SUPPORTED_CITY_NAMES } from '../data/destination';
-import { getAttractionsForCity, calculateMatchScore } from '../services/smartPlannerService';
+import {
+  getAttractionsByDestination,
+  getAttractionsForCity,
+  calculateMatchScore,
+  rankAttractions,
+} from '../services/smartPlannerService';
 import './Destinations.css';
 
 const CATEGORIES = [
@@ -53,25 +58,15 @@ export default function Destinations() {
     }
   }, [currentCity, trip.selectedPlaces, setTripPreferences]);
 
-  // 1. Raw attractions for city from destination.js
+  // 1. Raw attractions for destination from destination.js
   const cityAttractions = useMemo(() => {
     if (!cityIsSupported) return [];
-    return getAttractionsForCity(currentCity);
+    return getAttractionsByDestination(currentCity);
   }, [currentCity, cityIsSupported]);
 
-  // 2. Score, annotate, and rank attractions based on user interests
+  // 2. Canonical interest ranking and scoring
   const scoredAttractions = useMemo(() => {
-    return cityAttractions.map((place) => {
-      const match = calculateMatchScore(place, interests);
-      return {
-        ...place,
-        matchScore: match.score,
-        matchLabel: match.scoreLabel,
-        isRecommended: match.isRecommended,
-        badgeText: match.badgeText,
-        explanation: match.explanation,
-      };
-    });
+    return rankAttractions(cityAttractions, interests);
   }, [cityAttractions, interests]);
 
   // 3. Filter by category, search query, and order recommended first

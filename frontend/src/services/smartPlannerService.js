@@ -11,7 +11,7 @@
  * it will delegate directly to the API without frontend interface changes.
  */
 
-import { destinations, CITY_OPTIONS } from '../data/destination';
+import { destinations } from '../data/destination.js';
 
 // Category normalization mapping
 const CATEGORY_MAP = {
@@ -25,6 +25,23 @@ const CATEGORY_MAP = {
   Entertainment: 'Entertainment',
   Food: 'Food',
   Shopping: 'Shopping',
+};
+
+// Interest synonym mapping: expands a user interest label to additional tags
+// that should also count as a match when scoring attractions.
+const INTEREST_SYNONYMS = {
+  history: ['heritage', 'culture', 'monument', 'history'],
+  heritage: ['heritage', 'history', 'culture', 'monument'],
+  culture: ['culture', 'heritage', 'history'],
+  nature: ['nature', 'adventure'],
+  adventure: ['adventure', 'nature'],
+  beaches: ['beaches', 'beach', 'nature'],
+  photography: ['photography'],
+  food: ['food'],
+  shopping: ['shopping'],
+  spiritual: ['spiritual', 'culture'],
+  nightlife: ['nightlife', 'entertainment'],
+  entertainment: ['entertainment', 'nightlife'],
 };
 
 /**
@@ -57,7 +74,28 @@ export function getAttractionsForCity(cityName) {
 }
 
 /**
- * Calculates rule-based match score and explanation based on user interests
+ * calculateMatchScore
+ *
+ * Computes a genuine, differentiated interest match score for an attraction.
+ *
+ * Algorithm:
+ *   1. Expand each user interest using INTEREST_SYNONYMS to build a full
+ *      set of matching tags.
+ *   2. Check the attraction's `interests` array AND its `category` against
+ *      the expanded tag set.
+ *   3. Count exact matches (direct interest tag match) and partial matches
+ *      (synonym match only).
+ *   4. Compute a weighted score:
+ *        - Each exact interest match adds more weight than a synonym hit.
+ *        - Baseline starts at 40% for attractions with no match at all.
+ *        - Score is capped at 97% (only a perfect multi-match attraction
+ *          should reach that level).
+ *   5. isRecommended is true only when the raw match rate exceeds a
+ *      meaningful threshold — ensuring not every attraction gets the badge.
+ *
+ * @param {object} attraction   Normalized attraction object (from getAttractionsForCity)
+ * @param {string[]} userInterests  Array of interest labels (e.g. ["Culture","Photography"])
+ * @returns {{ isRecommended, score, scoreLabel, badgeText, explanation, matchedInterests }}
  */
 export function calculateMatchScore(attraction, userInterests = []) {
   if (!userInterests || userInterests.length === 0) {
@@ -65,51 +103,138 @@ export function calculateMatchScore(attraction, userInterests = []) {
       isRecommended: false,
       score: null,
       scoreLabel: null,
+      badgeText: null,
       explanation: 'General recommendation for this destination',
+      matchedInterests: [],
     };
   }
 
-  const normalizedUserInterests = userInterests.map((i) => i.toLowerCase());
   const attractionCategory = (attraction.category || '').toLowerCase();
-  const attractionInterests = (attraction.interests || []).map((i) => i.toLowerCase());
+  // All tags the attraction is tagged with (lowercase)
+  const attractionTags = [
+    ...((attraction.interests || []).map((i) => i.toLowerCase())),
+    attractionCategory,
+  ];
 
-  // Check matching items
-  const matchedInterests = userInterests.filter((interest) => {
-    const intLower = interest.toLowerCase();
-    return (
-      attractionCategory === intLower ||
-      attractionInterests.includes(intLower) ||
-      (intLower === 'history' && attractionCategory === 'heritage') ||
-      (intLower === 'culture' && attractionCategory === 'heritage') ||
-      (intLower === 'beaches' && attractionCategory === 'beach')
-    );
+  // For each user interest, determine if it's an exact or synonym match
+  const exactMatches = [];   // user interests that directly appear in attractionTags
+  const synonymMatches = []; // user interests matched via synonym expansion only
+
+  userInterests.forEach((interest) => {
+    const interestLower = interest.toLowerCase();
+    const synonyms = INTEREST_SYNONYMS[interestLower] || [interestLower];
+
+    if (attractionTags.includes(interestLower)) {
+      // Direct / exact match
+      exactMatches.push(interest);
+    } else {
+      // Check synonym expansion
+      const synonymHit = synonyms.some((syn) => attractionTags.includes(syn));
+      if (synonymHit) {
+        synonymMatches.push(interest);
+      }
+    }
   });
 
-  const matchCount = matchedInterests.length;
+  const totalUserInterests = userInterests.length;
+  const exactCount = exactMatches.length;
+  const synonymCount = synonymMatches.length;
+  const totalMatchCount = exactCount + synonymCount;
 
-  if (matchCount > 0) {
-    // Score calculation: 82% base + 6% per matching interest (capped at 98%)
-    const score = Math.min(98, 82 + matchCount * 7);
-    const primaryMatch = matchedInterests.slice(0, 2).join(' & ');
-
+  if (totalMatchCount === 0) {
+    // No match at all — show the card but mark as low relevance
     return {
-      isRecommended: true,
-      score,
-      scoreLabel: `${score}% Match`,
-      badgeText: '✨ Recommended for your interests',
-      explanation: `Matches your interests in ${primaryMatch}`,
-      matchedInterests,
+      isRecommended: false,
+      score: null,
+      scoreLabel: null,
+      badgeText: null,
+      explanation: 'Popular attraction in this city',
+      matchedInterests: [],
     };
   }
 
+  // Weighted score:
+  //   - Each exact match contributes a higher weight than a synonym match.
+  //   - Maximum possible score with all exact matches = 97%
+  //   - A single exact match out of 5 interests → ~60%
+  //   - Two exact matches out of 5 interests → ~74%
+  //   - All 5 exact matches → ~97%
+  const exactWeight = 14;    // points per exact match
+  const synonymWeight = 6;   // points per synonym-only match
+  const base = 46;           // baseline points when there is ≥1 match
+
+  const rawScore = base + (exactCount * exactWeight) + (synonymCount * synonymWeight);
+  const score = Math.min(97, rawScore);
+
+  // Only mark as "recommended" when at least one EXACT match exists
+  // AND the score clears a meaningful threshold.
+  const isRecommended = exactCount >= 1 && score >= 60;
+
+  // Build human-readable match label using matched interest names
+  const allMatchedLabels = [...exactMatches, ...synonymMatches];
+  const primaryMatchLabel = allMatchedLabels.slice(0, 2).join(' & ');
+
   return {
-    isRecommended: false,
-    score: null,
-    scoreLabel: null,
-    badgeText: null,
-    explanation: 'Popular attraction in this city',
-    matchedInterests: [],
+    isRecommended,
+    score,
+    scoreLabel: `${score}% Match`,
+    badgeText: isRecommended ? '✨ Recommended for your interests' : null,
+    explanation: isRecommended
+      ? `Matches your interests in ${primaryMatchLabel}`
+      : `Popular attraction in this city`,
+    matchedInterests: allMatchedLabels,
   };
+}
+
+// Canonical aliases matching Architecture Rule 6
+export const getAttractionsByDestination = getAttractionsForCity;
+export const calculateInterestMatch = calculateMatchScore;
+
+/**
+ * rankAttractions
+ *
+ * Scores, annotates, and ranks attractions for a destination based on user interests.
+ * - Attractions with higher interest match scores appear first.
+ * - Recommended attractions (strong matches) are prioritized at top.
+ * - Attractions with lower or zero matches remain available below instead of disappearing.
+ *
+ * Architecture Note: Reusable canonical ranking function that can later wrap backend API scores.
+ *
+ * @param {Array} attractions - Array of normalized attraction objects
+ * @param {string[]} interests - Array of user interest tags
+ * @returns {Array} Ranked and annotated attractions
+ */
+export function rankAttractions(attractions = [], interests = []) {
+  if (!Array.isArray(attractions)) return [];
+
+  const annotated = attractions.map((place) => {
+    const match = calculateInterestMatch(place, interests);
+    return {
+      ...place,
+      matchScore: match.score,
+      matchLabel: match.scoreLabel,
+      isRecommended: match.isRecommended,
+      badgeText: match.badgeText,
+      explanation: match.explanation,
+      matchedInterests: match.matchedInterests,
+    };
+  });
+
+  return annotated.sort((a, b) => {
+    // 1. Recommended attractions appear first
+    if (a.isRecommended && !b.isRecommended) return -1;
+    if (!a.isRecommended && b.isRecommended) return 1;
+
+    // 2. Higher match scores rank above lower ones
+    const scoreA = a.matchScore ?? -1;
+    const scoreB = b.matchScore ?? -1;
+    if (scoreB !== scoreA) {
+      return scoreB - scoreA;
+    }
+
+    // 3. Alphabetical tie-break
+    return (a.name || '').localeCompare(b.name || '');
+  });
 }
 
 /**
