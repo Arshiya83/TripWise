@@ -44,12 +44,117 @@ console.log('   TRIPWISE REGRESSION: BUDGET CONSISTENCY & ATTRACTION IMAGES  ');
 console.log('════════════════════════════════════════════════════════════════\n');
 
 // ──────────────────────────────────────────────────────────────────────────
-// SUITE 1: EXACT JAIPUR SCREENSHOT SCENARIO VERIFICATION
+// SUITE 1: EXACT HYDERABAD SCREENSHOT SCENARIO (₹30,000, 3 DAYS, 2 TRAVELERS)
 // ──────────────────────────────────────────────────────────────────────────
-console.log('── SUITE 1: Exact Jaipur Screenshot Scenario Reproduction & Fix ──');
+console.log('── SUITE 1: Exact Hyderabad Scenario Reproduction & Fix ────────');
 
-// User inputs from screenshot:
-// Destination: Jaipur, Duration: 3 days (2 nights), Travelers: 2, Budget: ₹30,000, Attractions: 3
+// In screenshot: Hyderabad, 3 days, 2 travelers, ₹30,000 budget, 3 selected attractions
+const hydPlaces = [
+  { id: 'hyd-charminar', name: 'Charminar', entryFee: 25, city: 'Hyderabad' },
+  { id: 'hyd-golconda', name: 'Golconda Fort', entryFee: 25, city: 'Hyderabad' },
+  { id: 'hyd-chowmahalla', name: 'Chowmahalla Palace', entryFee: 75, rawEntryFee: 75, city: 'Hyderabad' }, // 25+25+75 = 125 * 2 = 250
+];
+
+// Scenario 1A: Without selected hotel (Standard baseline allocation)
+const hydBaselineBudget = calculateTripBudget({
+  budget: 30000,
+  numberOfDays: 3,
+  travelers: 2,
+  selectedPlaces: hydPlaces,
+  destination: 'Hyderabad',
+  travelType: 'Couple',
+  selectedHotel: null,
+  selectedRestaurants: [],
+});
+
+assert(
+  'Hyderabad Baseline: Total estimated spend strictly equals ₹22,750',
+  hydBaselineBudget.totalEstimatedSpend === 22750,
+  `Spend: ₹${hydBaselineBudget.totalEstimatedSpend} (Acc: ₹${hydBaselineBudget.accommodationCost}, Food: ₹${hydBaselineBudget.foodCost}, Trans: ₹${hydBaselineBudget.transportCost}, Act: ₹${hydBaselineBudget.activitiesCost}, Misc: ₹${hydBaselineBudget.miscCost})`
+);
+
+assert(
+  'Hyderabad Baseline: Remaining balance equals ₹7,250 (₹30,000 - ₹22,750)',
+  hydBaselineBudget.remainingBudget === 7250,
+  `Remaining: ₹${hydBaselineBudget.remainingBudget}`
+);
+
+// Scenario 1B: With selected hotel (ITC Kakatiya ₹8,500/night for 2 nights = ₹17,000)
+// Testing that passing hotel as string ID or as object produces the exact same ₹28,350 everywhere!
+const hydHotelObj = { id: 'hotel-hyd-2', name: 'ITC Kakatiya', pricePerNight: 8500, city: 'Hyderabad' };
+
+const itinBudgetWithHotel = calculateTripBudget({
+  budget: 30000,
+  numberOfDays: 3,
+  travelers: 2,
+  selectedPlaces: hydPlaces,
+  destination: 'Hyderabad',
+  travelType: 'Couple',
+  selectedHotel: 'hotel-hyd-2', // String ID as passed by Itinerary.jsx
+  selectedHotels: ['hotel-hyd-2'],
+  selectedRestaurants: [],
+});
+
+const budgetEstimatorWithHotel = calculateTripBudget({
+  budget: 30000,
+  numberOfDays: 3,
+  travelers: 2,
+  selectedPlaces: hydPlaces,
+  destination: 'Hyderabad',
+  travelType: 'Couple',
+  selectedHotel: hydHotelObj, // Object as passed by BudgetPage.jsx
+  selectedRestaurants: [],
+});
+
+const tripSummaryWithHotel = calculateTripBudget({
+  budget: 30000,
+  numberOfDays: 3,
+  travelers: 2,
+  selectedPlaces: hydPlaces,
+  destination: 'Hyderabad',
+  travelType: 'Couple',
+  selectedHotel: hydHotelObj, // Object as passed by TripSummary.jsx
+  selectedRestaurants: [], // Unselected dining: TripSummary now passes [] without injecting fake restaurants!
+});
+
+assert(
+  'Mathematical consistency: Itinerary with hotel ID calculates ₹28,350',
+  itinBudgetWithHotel.totalEstimatedSpend === 28350 && itinBudgetWithHotel.accommodationCost === 17000,
+  `Itinerary Spend: ₹${itinBudgetWithHotel.totalEstimatedSpend}, Acc: ₹${itinBudgetWithHotel.accommodationCost}`
+);
+
+assert(
+  'Mathematical consistency: Budget Estimator with hotel object calculates ₹28,350',
+  budgetEstimatorWithHotel.totalEstimatedSpend === 28350 && budgetEstimatorWithHotel.accommodationCost === 17000,
+  `Budget Estimator Spend: ₹${budgetEstimatorWithHotel.totalEstimatedSpend}`
+);
+
+assert(
+  'Mathematical consistency: Trip Summary without fake restaurants calculates ₹28,350',
+  tripSummaryWithHotel.totalEstimatedSpend === 28350 && tripSummaryWithHotel.foodCost === 7200,
+  `Trip Summary Spend: ₹${tripSummaryWithHotel.totalEstimatedSpend}, Food: ₹${tripSummaryWithHotel.foodCost}`
+);
+
+assert(
+  'ZERO DISCREPANCY: Itinerary == Budget Estimator == Trip Summary (₹28,350 == ₹28,350 == ₹28,350)',
+  itinBudgetWithHotel.totalEstimatedSpend === budgetEstimatorWithHotel.totalEstimatedSpend &&
+  budgetEstimatorWithHotel.totalEstimatedSpend === tripSummaryWithHotel.totalEstimatedSpend,
+  'All 3 screens output identical total estimated spend down to the rupee'
+);
+
+assert(
+  'ZERO DISCREPANCY: Remaining balance is identical across all screens (₹1,650)',
+  itinBudgetWithHotel.remainingBudget === 1650 &&
+  budgetEstimatorWithHotel.remainingBudget === 1650 &&
+  tripSummaryWithHotel.remainingBudget === 1650,
+  'Remaining balance is ₹1,650 on all screens'
+);
+
+// ──────────────────────────────────────────────────────────────────────────
+// SUITE 1B: JAIPUR SCENARIO VERIFICATION
+// ──────────────────────────────────────────────────────────────────────────
+console.log('\n── SUITE 1B: Jaipur Scenario Verification ──────────────────────');
+
 const jaipurPlaces = [
   { id: 'jai-amer', name: 'Amber Fort', entryFee: 100, city: 'Jaipur' },
   { id: 'jai-hawa', name: 'Hawa Mahal', entryFee: 50, city: 'Jaipur' },
@@ -260,13 +365,41 @@ assert(
 );
 
 // ──────────────────────────────────────────────────────────────────────────
-// SUITE 5: ATTRACTION IMAGES AUDIT (JAIPUR & GOA)
+// SUITE 5: ATTRACTION IMAGES AUDIT (HYDERABAD, DELHI, JAIPUR & GOA)
 // ──────────────────────────────────────────────────────────────────────────
-console.log('\n── SUITE 5: Attraction Images Audit (Jaipur & Goa) ─────────────');
+console.log('\n── SUITE 5: Attraction Images Audit (Hyderabad, Delhi, Jaipur & Goa) ─');
 
 const DISCORD_IMAGE_PATTERN = 'photo-1614680376739-414d95ff43df';
+const CARTOON_EGG_PATTERN = 'photo-1628155930542-3c7a64e2c833';
 
-// 10 Jaipur attractions from requirements:
+// Hyderabad attractions from requirements:
+const requiredHyderabad = [
+  'Charminar',
+  'Chowmahalla Palace',
+  'Golconda Fort',
+  'Nehru Zoological Park',
+  'Salar Jung Museum',
+  'Birla Mandir Hyderabad',
+  'Ramoji Film City',
+  'Hussain Sagar Lake',
+  'Qutb Shahi Tombs',
+];
+
+// Delhi attractions from requirements:
+const requiredDelhi = [
+  'Purana Qila',
+  "Humayun's Tomb",
+  'India Gate',
+  'Jama Masjid',
+  'National Museum Delhi',
+  'Qutub Minar',
+  'Red Fort',
+  'Lotus Temple',
+  'Akshardham Temple',
+  'Hauz Khas Village',
+];
+
+// Jaipur attractions from requirements:
 const requiredJaipur = [
   'Jal Mahal',
   'Sisodia Rani Garden & Palace',
@@ -280,7 +413,7 @@ const requiredJaipur = [
   'Johri Bazaar & Gem Markets',
 ];
 
-// 6 Goa attractions from requirements:
+// Goa attractions from requirements:
 const requiredGoa = [
   'Anjuna Beach & Flea Market',
   'Baga Beach',
@@ -289,6 +422,20 @@ const requiredGoa = [
   'Se Cathedral',
   'Vagator Beach & Chapora Fort',
 ];
+
+// Verify Chowmahalla Palace NEVER uses cartoon egg image
+const chowmahalla = destinations.find((d) => d.id === 'hyd-chowmahalla');
+assert(
+  'Chowmahalla Palace does NOT use cartoon egg image (photo-1628155930542-3c7a64e2c833)',
+  chowmahalla && !chowmahalla.image.includes(CARTOON_EGG_PATTERN),
+  `Image URL: ${chowmahalla?.image}`
+);
+
+assert(
+  'Chowmahalla Palace maps to verified local photograph',
+  chowmahalla && chowmahalla.image.includes('hyd-chowmahalla.jpg'),
+  `Resolved image: ${chowmahalla?.image}`
+);
 
 // Verify Basilica of Bom Jesus NEVER uses Discord image
 const bomJesus = destinations.find((d) => d.name === 'Basilica of Bom Jesus');
@@ -304,7 +451,44 @@ assert(
   `Resolved image: ${bomJesus?.image}`
 );
 
-// Verify all required Jaipur attractions exist and have valid, non-placeholder images
+// Audit Hyderabad attractions
+requiredHyderabad.forEach((attName) => {
+  const match = destinations.find((d) => d.city === 'Hyderabad' && d.name.toLowerCase() === attName.toLowerCase());
+  const resolvedImg = match ? getVerifiedAttractionImage(match, 'Hyderabad') : null;
+  const isValid =
+    Boolean(resolvedImg) &&
+    typeof resolvedImg === 'string' &&
+    resolvedImg.length > 5 &&
+    !resolvedImg.startsWith('data:image/svg') &&
+    !resolvedImg.includes(CARTOON_EGG_PATTERN) &&
+    !resolvedImg.includes(DISCORD_IMAGE_PATTERN);
+
+  assert(
+    `Hyderabad landmark "${attName}" has verified deterministic photograph`,
+    isValid,
+    `Image: ${resolvedImg}`
+  );
+});
+
+// Audit Delhi attractions
+requiredDelhi.forEach((attName) => {
+  const match = destinations.find((d) => d.city === 'Delhi' && d.name.toLowerCase() === attName.toLowerCase());
+  const resolvedImg = match ? getVerifiedAttractionImage(match, 'Delhi') : null;
+  const isValid =
+    Boolean(resolvedImg) &&
+    typeof resolvedImg === 'string' &&
+    resolvedImg.length > 5 &&
+    !resolvedImg.startsWith('data:image/svg') &&
+    !resolvedImg.includes(DISCORD_IMAGE_PATTERN);
+
+  assert(
+    `Delhi landmark "${attName}" has verified deterministic photograph`,
+    isValid,
+    `Image: ${resolvedImg}`
+  );
+});
+
+// Audit Jaipur attractions
 requiredJaipur.forEach((attName) => {
   const match = destinations.find((d) => d.city === 'Jaipur' && d.name.toLowerCase() === attName.toLowerCase());
   const resolvedImg = match ? getVerifiedAttractionImage(match, 'Jaipur') : null;
@@ -312,7 +496,7 @@ requiredJaipur.forEach((attName) => {
     Boolean(resolvedImg) &&
     typeof resolvedImg === 'string' &&
     resolvedImg.length > 5 &&
-    !resolvedImg.startsWith('data:image/svg') && // Not a fallback placeholder
+    !resolvedImg.startsWith('data:image/svg') &&
     !resolvedImg.includes(DISCORD_IMAGE_PATTERN);
 
   assert(
@@ -322,7 +506,7 @@ requiredJaipur.forEach((attName) => {
   );
 });
 
-// Verify all required Goa attractions exist and have valid, non-placeholder images
+// Audit Goa attractions
 requiredGoa.forEach((attName) => {
   const match = destinations.find((d) => d.city === 'Goa' && d.name.toLowerCase() === attName.toLowerCase());
   const resolvedImg = match ? getVerifiedAttractionImage(match, 'Goa') : null;
@@ -330,7 +514,7 @@ requiredGoa.forEach((attName) => {
     Boolean(resolvedImg) &&
     typeof resolvedImg === 'string' &&
     resolvedImg.length > 5 &&
-    !resolvedImg.startsWith('data:image/svg') && // Not a fallback placeholder
+    !resolvedImg.startsWith('data:image/svg') &&
     !resolvedImg.includes(DISCORD_IMAGE_PATTERN);
 
   assert(
@@ -343,6 +527,25 @@ requiredGoa.forEach((attName) => {
 // Check local file existence in frontend/public/attractions
 const publicAttractionsDir = path.join(__dirname, '../frontend/public/attractions');
 const expectedLocalFiles = [
+  'hyd-chowmahalla.jpg',
+  'hyd-charminar.jpg',
+  'hyd-golconda.jpg',
+  'hyd-hussain-sagar.jpg',
+  'hyd-nehru-zoo.jpg',
+  'hyd-salar-jung.jpg',
+  'hyd-birla-mandir.png',
+  'hyd-ramoji.jpg',
+  'hyd-qutb-shahi.jpg',
+  'del-red-fort.jpg',
+  'del-india-gate.jpg',
+  'del-qutub-minar.jpg',
+  'del-humayun.jpg',
+  'del-lotus-temple.jpg',
+  'del-akshardham.jpg',
+  'del-jama-masjid.jpg',
+  'del-national-museum.jpg',
+  'del-hauz-khas.jpg',
+  'del-purana-qila.jpg',
   'goa-basilica.jpg',
   'goa-anjuna.jpg',
   'goa-palolem.jpg',

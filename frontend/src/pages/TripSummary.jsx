@@ -82,10 +82,10 @@ function TripSummary() {
         cityHotels.find((h) => h.id === target || h.name?.toLowerCase() === String(target).toLowerCase());
       if (match) return match;
     }
-    return cityHotels[0] || null;
+    return null;
   }, [trip.selectedHotels, cityHotels]);
 
-  // Dining matching (supports new IDs, legacy IDs rest-1..5, objects, and fallback)
+  // Dining matching (supports new IDs, legacy IDs rest-1..5, objects)
   const cityDining = useMemo(() => getRestaurantsByDestination(currentCity), [currentCity]);
   const selectedDining = useMemo(() => {
     if (Array.isArray(trip.selectedRestaurants) && trip.selectedRestaurants.length > 0) {
@@ -115,7 +115,7 @@ function TripSummary() {
       }
       if (matches.length > 0) return matches;
     }
-    return cityDining.slice(0, 2);
+    return [];
   }, [trip.selectedRestaurants, cityDining, currentCity]);
 
   // Itinerary normalization (handles MongoDB array format, object daysList format, or build fallback)

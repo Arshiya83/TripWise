@@ -102,6 +102,7 @@ export default function Itinerary() {
       numberOfDays: totalDays,
       travelers,
       selectedHotel: trip.selectedHotels?.[0] || null,
+      selectedHotels: trip.selectedHotels || [],
       selectedRestaurants: trip.selectedRestaurants || [],
       selectedPlaces,
       destination: currentCity,

@@ -151,6 +151,7 @@ const GENERIC_STOCK_PATTERNS = [
   'photo-1488646953014',
   'photo-1507525428034',
   'photo-1614680376739-414d95ff43df', // Unrelated Discord graphic
+  'photo-1628155930542-3c7a64e2c833', // Cartoon green egg
 ];
 
 /**

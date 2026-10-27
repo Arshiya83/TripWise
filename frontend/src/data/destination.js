@@ -158,7 +158,7 @@ const destinations = [
     latitude: 17.3616,
     longitude: 78.4747,
     // Verified photo of Charminar Hyderabad
-    image: 'https://images.unsplash.com/photo-1605649487212-47bdab064df7?auto=format&fit=crop&w=800&q=80',
+    image: '/attractions/hyd-charminar.jpg',
     openingHours: '9:30 AM - 5:30 PM',
     entryFee: 25,
     recommendedDuration: 2,
@@ -175,7 +175,7 @@ const destinations = [
     latitude: 17.3833,
     longitude: 78.4011,
     // Verified photo of Golconda Fort ramparts
-    image: 'https://images.unsplash.com/photo-1627894483216-2138af692e32?auto=format&fit=crop&w=800&q=80',
+    image: '/attractions/hyd-golconda.jpg',
     openingHours: '9:00 AM - 5:30 PM',
     entryFee: 25,
     recommendedDuration: 3,
@@ -192,7 +192,7 @@ const destinations = [
     latitude: 17.4239,
     longitude: 78.4738,
     // Verified photo of Hussain Sagar Buddha statue
-    image: 'https://images.unsplash.com/photo-1712422813106-dfb845a8a7ed?auto=format&fit=crop&w=800&q=80',
+    image: '/attractions/hyd-hussain-sagar.jpg',
     openingHours: 'Open throughout the day',
     entryFee: 0,
     recommendedDuration: 2,
@@ -209,7 +209,7 @@ const destinations = [
     latitude: 17.3578,
     longitude: 78.4717,
     // Verified photo of Chowmahalla Palace Khilwat Mubarak courtyard
-    image: 'https://images.unsplash.com/photo-1628155930542-3c7a64e2c833?auto=format&fit=crop&w=800&q=80',
+    image: '/attractions/hyd-chowmahalla.jpg',
     openingHours: '10:00 AM - 5:00 PM',
     entryFee: 100,
     recommendedDuration: 2,
@@ -226,7 +226,7 @@ const destinations = [
     latitude: 17.2543,
     longitude: 78.6808,
     // Verified photo of Ramoji Film City grand entrance studio gates
-    image: 'https://upload.wikimedia.org/wikipedia/commons/d/d1/Ramoji_Film_City.jpg',
+    image: '/attractions/hyd-ramoji.jpg',
     openingHours: '9:00 AM - 5:30 PM',
     entryFee: 1000,
     recommendedDuration: 6,
@@ -243,7 +243,7 @@ const destinations = [
     latitude: 17.3713,
     longitude: 78.4804,
     // Verified photo of Salar Jung Museum building on Musi River
-    image: 'https://upload.wikimedia.org/wikipedia/commons/a/ac/Salar_Jung_Museum%2C_Hyderabad%2C_India.jpg',
+    image: '/attractions/hyd-salar-jung.jpg',
     openingHours: '10:00 AM - 5:00 PM',
     entryFee: 50,
     recommendedDuration: 2.5,
@@ -260,7 +260,7 @@ const destinations = [
     latitude: 17.4062,
     longitude: 78.4691,
     // Verified photo of Birla Mandir white marble temple atop Naubath Pahad
-    image: 'https://upload.wikimedia.org/wikipedia/commons/3/3c/Birla_Mandir%2C_Hyderabad.png',
+    image: '/attractions/hyd-birla-mandir.png',
     openingHours: '7:00 AM - 12:00 PM, 3:00 PM - 9:00 PM',
     entryFee: 0,
     recommendedDuration: 1.5,
@@ -277,7 +277,7 @@ const destinations = [
     latitude: 17.3542,
     longitude: 78.4554,
     // Verified photo of Nehru Zoological Park safari grounds in Hyderabad
-    image: 'https://upload.wikimedia.org/wikipedia/commons/b/ba/Hyderabad_zoo.jpg',
+    image: '/attractions/hyd-nehru-zoo.jpg',
     openingHours: '8:30 AM - 5:00 PM',
     entryFee: 50,
     recommendedDuration: 3,
@@ -294,7 +294,7 @@ const destinations = [
     latitude: 17.3955,
     longitude: 78.4011,
     // Verified photo of Qutb Shahi domed tombs in Ibrahim Bagh
-    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/Qutb_Shahi_Tomb_5.jpg/1280px-Qutb_Shahi_Tomb_5.jpg',
+    image: '/attractions/hyd-qutb-shahi.jpg',
     openingHours: '9:30 AM - 5:30 PM',
     entryFee: 25,
     recommendedDuration: 1.5,
@@ -663,7 +663,7 @@ const destinations = [
     latitude: 28.6562,
     longitude: 77.241,
     // Red Fort Delhi — UNESCO Heritage
-    image: 'https://images.unsplash.com/photo-1683201532264-86dd7f69df39?auto=format&fit=crop&w=800&q=80',
+    image: '/attractions/del-red-fort.jpg',
     openingHours: '9:30 AM - 4:30 PM',
     entryFee: 35,
     recommendedDuration: 2.5,
@@ -680,7 +680,7 @@ const destinations = [
     latitude: 28.6129,
     longitude: 77.2295,
     // India Gate monument — correct war memorial
-    image: 'https://images.unsplash.com/photo-1587474260584-136574528ed5?auto=format&fit=crop&w=800&q=80',
+    image: '/attractions/del-india-gate.jpg',
     openingHours: 'Open throughout the day',
     entryFee: 0,
     recommendedDuration: 1.5,
@@ -697,7 +697,7 @@ const destinations = [
     latitude: 28.5245,
     longitude: 77.1855,
     // Qutub Minar Delhi — correct image of the minaret
-    image: 'https://images.unsplash.com/photo-1632426237957-5ea14aae7100?auto=format&fit=crop&w=800&q=80',
+    image: '/attractions/del-qutub-minar.jpg',
     openingHours: '7:00 AM - 5:00 PM',
     entryFee: 35,
     recommendedDuration: 2,
@@ -731,7 +731,7 @@ const destinations = [
     latitude: 28.5535,
     longitude: 77.2588,
     // Lotus temple exterior
-    image: 'https://images.unsplash.com/photo-1560625995-72acab369e73?auto=format&fit=crop&w=800&q=80',
+    image: '/attractions/del-lotus-temple.jpg',
     openingHours: '9:00 AM - 5:30 PM',
     entryFee: 0,
     recommendedDuration: 1.5,
@@ -765,7 +765,7 @@ const destinations = [
     latitude: 28.6127,
     longitude: 77.2773,
     // Grand intricately carved Hindu temple
-    image: 'https://images.unsplash.com/photo-1609920658906-8223bd289001?auto=format&fit=crop&w=800&q=80',
+    image: '/attractions/del-akshardham.jpg',
     openingHours: '9:30 AM - 8:00 PM',
     entryFee: 170,
     recommendedDuration: 4,
@@ -782,7 +782,7 @@ const destinations = [
     latitude: 28.6507,
     longitude: 77.2334,
     // Verified photo of Jama Masjid Old Delhi grand arches and courtyard
-    image: 'https://images.unsplash.com/photo-1584551246679-0daf3d275d0f?auto=format&fit=crop&w=800&q=80',
+    image: '/attractions/del-jama-masjid.jpg',
     openingHours: '7:00 AM - 12:00 PM, 1:30 PM - 6:30 PM',
     entryFee: 0,
     recommendedDuration: 1.5,
@@ -816,7 +816,7 @@ const destinations = [
     latitude: 28.6118,
     longitude: 77.2195,
     // Verified photo of historic Indian antiquities and bronze sculptures
-    image: 'https://images.unsplash.com/photo-1599837565318-67429bde7162?auto=format&fit=crop&w=800&q=80',
+    image: '/attractions/del-national-museum.jpg',
     openingHours: '10:00 AM - 6:00 PM',
     entryFee: 20,
     recommendedDuration: 2.5,

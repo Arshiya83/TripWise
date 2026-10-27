@@ -91,6 +91,7 @@ export function buildTripWisePDF(tripData = {}, summaryData = {}) {
     numberOfDays,
     travelers,
     selectedHotel: hotels[0] || null,
+    selectedHotels: hotels,
     selectedRestaurants: restaurants,
     selectedPlaces: places,
     destination,

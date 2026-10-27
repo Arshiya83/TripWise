@@ -49,15 +49,15 @@ async function runRegressionTests() {
 
   // Verify all 9 Hyderabad attractions have deterministic image entries
   const hydAttractions = [
-    { name: 'Charminar', key: 'hyd-charminar', keyword: 'photo-1605649487212' },
-    { name: 'Golconda Fort', key: 'hyd-golconda', keyword: 'photo-1627894483216' },
-    { name: 'Hussain Sagar Lake', key: 'hyd-hussain-sagar', keyword: 'photo-1712422813106' },
-    { name: 'Chowmahalla Palace', key: 'hyd-chowmahalla', keyword: 'photo-1628155930542' },
-    { name: 'Ramoji Film City', key: 'hyd-rmo', keyword: 'Ramoji_Film_City.jpg' },
-    { name: 'Salar Jung Museum', key: 'hyd-salar-jung', keyword: 'Salar_Jung_Museum' },
-    { name: 'Birla Mandir Hyderabad', key: 'hyd-birla-mandir', keyword: 'Birla_Mandir' },
-    { name: 'Nehru Zoological Park', key: 'hyd-nehru-zoo', keyword: 'Hyderabad_zoo.jpg' },
-    { name: 'Qutb Shahi Tombs', key: 'hyd-qutb-shahi', keyword: 'Qutb_Shahi_Tomb' },
+    { name: 'Charminar', key: 'hyd-charminar', keyword: 'hyd-charminar' },
+    { name: 'Golconda Fort', key: 'hyd-golconda', keyword: 'hyd-golconda' },
+    { name: 'Hussain Sagar Lake', key: 'hyd-hussain-sagar', keyword: 'hyd-hussain-sagar' },
+    { name: 'Chowmahalla Palace', key: 'hyd-chowmahalla', keyword: 'hyd-chowmahalla' },
+    { name: 'Ramoji Film City', key: 'hyd-rmo', keyword: 'hyd-ramoji' },
+    { name: 'Salar Jung Museum', key: 'hyd-salar-jung', keyword: 'hyd-salar-jung' },
+    { name: 'Birla Mandir Hyderabad', key: 'hyd-birla-mandir', keyword: 'hyd-birla-mandir' },
+    { name: 'Nehru Zoological Park', key: 'hyd-nehru-zoo', keyword: 'hyd-nehru-zoo' },
+    { name: 'Qutb Shahi Tombs', key: 'hyd-qutb-shahi', keyword: 'hyd-qutb-shahi' },
   ];
 
   hydAttractions.forEach((att) => {

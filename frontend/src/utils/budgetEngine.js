@@ -17,6 +17,7 @@
  */
 
 import { getHotelsByDestination, getRestaurantsByDestination } from '../data/mockData.js';
+import { destinations } from '../data/destination.js';
 
 export function calculateTripBudget(params = {}) {
   const {
@@ -24,8 +25,11 @@ export function calculateTripBudget(params = {}) {
     numberOfDays = 3,
     travelers = 2,
     selectedHotel = null,
+    selectedHotels = [],
     selectedRestaurants = [],
+    selectedDining = [],
     selectedPlaces = [],
+    places = [],
     destination = 'Hyderabad',
     travelType = 'Couple',
     accommodationPricingMode = 'auto',
@@ -37,6 +41,27 @@ export function calculateTripBudget(params = {}) {
   const nights = Math.max(1, days - 1);
   const numTravelers = Math.max(1, Number(travelers) || 2);
   const roomsCount = Math.max(1, Math.ceil(numTravelers / 2));
+
+  // Resolve authoritative hotel object from object, string ID, or selectedHotels array
+  let effectiveHotel = null;
+  if (selectedHotel && typeof selectedHotel === 'object' && selectedHotel.name) {
+    effectiveHotel = selectedHotel;
+  } else if (typeof selectedHotel === 'string' && selectedHotel.trim()) {
+    const cityHotels = getHotelsByDestination(destination);
+    effectiveHotel = cityHotels.find(
+      (h) => h.id === selectedHotel || h.name?.toLowerCase() === selectedHotel.toLowerCase()
+    ) || null;
+  } else if (Array.isArray(selectedHotels) && selectedHotels.length > 0) {
+    const candidate = selectedHotels[0];
+    if (typeof candidate === 'object' && candidate !== null && candidate.name) {
+      effectiveHotel = candidate;
+    } else if (typeof candidate === 'string' && candidate.trim()) {
+      const cityHotels = getHotelsByDestination(destination);
+      effectiveHotel = cityHotels.find(
+        (h) => h.id === candidate || h.name?.toLowerCase() === candidate.toLowerCase()
+      ) || null;
+    }
+  }
 
   // 1. ACCOMMODATION CALCULATION
   const isManualPricing = accommodationPricingMode === 'manual';
@@ -55,10 +80,7 @@ export function calculateTripBudget(params = {}) {
     // MANUAL MODE: Strictly uses user-entered cost for the entire stay
     accommodationCost = Math.round(parsedManualCost);
     const effectiveNightlyRate = nights > 0 ? Math.round(accommodationCost / nights) : accommodationCost;
-    const hotelName =
-      selectedHotel && typeof selectedHotel === 'object' && selectedHotel.name
-        ? selectedHotel.name
-        : 'Custom Stay / Booking';
+    const hotelName = effectiveHotel?.name || 'Custom Stay / Booking';
     hotelNotes = `Manual Stay Cost: ₹${accommodationCost.toLocaleString('en-IN')} total stay (~₹${effectiveNightlyRate.toLocaleString('en-IN')}/night for ${nights} night${nights > 1 ? 's' : ''}, ${roomsCount} room${roomsCount > 1 ? 's' : ''}) • ${hotelName}`;
   } else if (isManualPricing && (isNaN(parsedManualCost) || parsedManualCost < 0)) {
     // MANUAL MODE with pending/invalid input: hold 0 without crashing or adding auto cost
@@ -66,12 +88,12 @@ export function calculateTripBudget(params = {}) {
     hotelNotes = `Manual Stay Cost: Awaiting valid amount for ${nights} night${nights > 1 ? 's' : ''}`;
   } else {
     // AUTOMATIC MODE: Calculates from selected hotel or destination allocation baseline
-    if (selectedHotel && typeof selectedHotel === 'object' && selectedHotel.name) {
-      hotelRatePerNight = Number(selectedHotel.pricePerNight) || 0;
+    if (effectiveHotel && effectiveHotel.name) {
+      hotelRatePerNight = Number(effectiveHotel.pricePerNight) || 0;
       accommodationCost = hotelRatePerNight * nights * roomsCount;
-      hotelNotes = `${selectedHotel.name} (₹${hotelRatePerNight.toLocaleString('en-IN')}/night × ${nights} nights × ${roomsCount} room${roomsCount > 1 ? 's' : ''})`;
+      hotelNotes = `${effectiveHotel.name} (₹${hotelRatePerNight.toLocaleString('en-IN')}/night × ${nights} nights × ${roomsCount} room${roomsCount > 1 ? 's' : ''})`;
     } else {
-      // Standard baseline for destination based on budget allocation
+      // Standard baseline for destination based on budget allocation (38%)
       accommodationCost = Math.round(userBudget * 0.38);
       hotelNotes = `Estimated stay for ${nights} night${nights > 1 ? 's' : ''} (${roomsCount} room${roomsCount > 1 ? 's' : ''} for ${numTravelers} guests)`;
     }
@@ -83,11 +105,32 @@ export function calculateTripBudget(params = {}) {
   const totalMainMeals = days * 2; // Lunch & Dinner
   const breakfastEstimate = days * numTravelers * 180; // Moderate breakfast
 
-  if (Array.isArray(selectedRestaurants) && selectedRestaurants.length > 0) {
+  // Resolve authoritative restaurant list from objects or string IDs
+  const rawDining = Array.isArray(selectedRestaurants) && selectedRestaurants.length > 0
+    ? selectedRestaurants
+    : (Array.isArray(selectedDining) && selectedDining.length > 0 ? selectedDining : []);
+
+  const effectiveRestaurants = [];
+  if (rawDining.length > 0) {
+    const cityDiningList = getRestaurantsByDestination(destination);
+    rawDining.forEach((r) => {
+      if (!r) return;
+      if (typeof r === 'object' && r.name) {
+        effectiveRestaurants.push(r);
+      } else if (typeof r === 'string' && r.trim()) {
+        const found = cityDiningList.find(
+          (d) => d.id === r || d.name?.toLowerCase() === r.toLowerCase()
+        );
+        if (found) effectiveRestaurants.push(found);
+      }
+    });
+  }
+
+  if (effectiveRestaurants.length > 0) {
     let selectedMealsSum = 0;
     let scheduledMealCount = 0;
 
-    selectedRestaurants.forEach((r) => {
+    effectiveRestaurants.forEach((r) => {
       if (!r) return;
       let costPerPerson = 500;
       if (typeof r.avgCostForTwo === 'number' && r.avgCostForTwo > 0) {
@@ -118,15 +161,25 @@ export function calculateTripBudget(params = {}) {
   let activitiesCost = 0;
   let activitiesNotes = '';
 
-  const rawTicketFees = (selectedPlaces || []).reduce((sum, p) => {
+  const rawPlaces = Array.isArray(selectedPlaces) && selectedPlaces.length > 0
+    ? selectedPlaces
+    : (Array.isArray(places) && places.length > 0 ? places : []);
+
+  const rawTicketFees = rawPlaces.reduce((sum, p) => {
     if (!p) return sum;
-    const fee = Number(p.rawEntryFee !== undefined ? p.rawEntryFee : p.entryFee) || 0;
+    let fee = 0;
+    if (typeof p === 'object') {
+      fee = Number(p.rawEntryFee !== undefined ? p.rawEntryFee : p.entryFee) || 0;
+    } else if (typeof p === 'string' && p.trim()) {
+      const found = destinations.find((d) => d.id === p || d.name?.toLowerCase() === p.toLowerCase());
+      if (found) fee = Number(found.entryFee) || 0;
+    }
     return sum + fee * numTravelers;
   }, 0);
 
   if (rawTicketFees > 0) {
     activitiesCost = rawTicketFees;
-    activitiesNotes = `Entry passes for ${selectedPlaces.length} selected attraction${selectedPlaces.length > 1 ? 's' : ''} (${numTravelers} travelers)`;
+    activitiesNotes = `Entry passes for ${rawPlaces.length} selected attraction${rawPlaces.length > 1 ? 's' : ''} (${numTravelers} travelers)`;
   } else {
     activitiesCost = Math.round(userBudget * 0.08);
     activitiesNotes = `Monument entries, temple offerings & sightseeing passes`;
