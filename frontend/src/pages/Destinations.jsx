@@ -3,13 +3,12 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useTrip, isPlaceInCity } from '../context/TripContext';
 import Button from '../components/Button';
 import SmartPlannerModal from '../components/SmartPlannerModal';
-import { isCitySupported, SUPPORTED_CITY_NAMES } from '../data/destination';
+import { isCitySupported, SUPPORTED_CITY_NAMES, getCityFallbackImage } from '../data/destination';
 import {
   getAttractionsByDestination,
-  getAttractionsForCity,
-  calculateMatchScore,
   rankAttractions,
 } from '../services/smartPlannerService';
+import { handleAttractionImageError, getAttractionPlaceholder, getVerifiedAttractionImage } from '../utils/imageFallback';
 import './Destinations.css';
 
 const CATEGORIES = [
@@ -72,10 +71,12 @@ export default function Destinations() {
   // 3. Filter by category, search query, and order recommended first
   const filteredPlaces = useMemo(() => {
     const list = scoredAttractions.filter((place) => {
-      // Category filter
+      // Category filter - check both primary category and interest metadata
+      const catLower = activeCategory.toLowerCase();
       const matchesCategory =
         activeCategory === 'All' ||
-        place.category.toLowerCase() === activeCategory.toLowerCase();
+        (place.category && place.category.toLowerCase() === catLower) ||
+        (Array.isArray(place.interests) && place.interests.some((i) => i.toLowerCase() === catLower));
 
       // Search filter
       const q = searchQuery.trim().toLowerCase();
@@ -277,20 +278,36 @@ export default function Destinations() {
 
             {/* ── 4 & 5. 3-COLUMN RESPONSIVE ATTRACTION CARD GRID ─────────────── */}
             {filteredPlaces.length === 0 ? (
-              <div className="empty-results-card card animate-fade-in">
-                <div className="empty-icon">📍</div>
-                <h3>No attractions found</h3>
-                <p>No attractions matched &ldquo;{searchQuery}&rdquo; in category &ldquo;{activeCategory}&rdquo;.</p>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => {
-                    setSearchQuery('');
-                    setActiveCategory('All');
-                  }}
-                >
-                  Reset Filters
-                </Button>
+              <div className="empty-results-card card animate-fade-in" style={{ padding: '2.5rem 1.5rem', textAlign: 'center' }}>
+                <div className="empty-icon" style={{ fontSize: '2.5rem', marginBottom: '0.75rem' }}>📍</div>
+                <h3 style={{ fontSize: '1.25rem', marginBottom: '0.5rem' }}>No attractions found</h3>
+                <p style={{ color: 'var(--text-secondary)', maxWidth: '500px', margin: '0 auto 1.25rem' }}>
+                  {searchQuery
+                    ? `No attractions matched "${searchQuery}" in category "${activeCategory}" for ${currentCity}.`
+                    : `No attractions currently listed under category "${activeCategory}" in ${currentCity}.`}
+                </p>
+                <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+                  {activeCategory !== 'All' && (
+                    <Button
+                      variant="primary"
+                      size="sm"
+                      onClick={() => setActiveCategory('All')}
+                      id="btn-return-all-attractions"
+                    >
+                      Return to All {currentCity} Attractions
+                    </Button>
+                  )}
+                  {searchQuery && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setSearchQuery('')}
+                      id="btn-clear-search"
+                    >
+                      Clear Search
+                    </Button>
+                  )}
+                </div>
               </div>
             ) : (
               <section className="attractions-grid" aria-label="Attractions list">
@@ -308,13 +325,15 @@ export default function Destinations() {
                       {/* Image header with fallback */}
                       <div className="card-media-wrap">
                         <img
-                          src={place.image}
+                          src={getVerifiedAttractionImage(place, currentCity)}
                           alt={place.name}
+                          data-name={place.name}
+                          data-city={currentCity}
                           className="card-media-img"
                           loading="lazy"
                           onError={(e) => {
-                            e.currentTarget.src =
-                              'https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&w=800&q=80';
+                            // getCityFallbackImage(currentCity) - superseded by neutral attraction placeholder with correct name
+                            handleAttractionImageError(e, place.name, currentCity);
                           }}
                         />
 

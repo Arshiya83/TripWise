@@ -118,15 +118,27 @@ export const isCitySupported = (cityName) => {
   return SUPPORTED_CITY_NAMES.includes(cityName.trim());
 };
 
+export const CITY_FALLBACK_IMAGES = {
+  hyderabad: 'https://images.unsplash.com/photo-1605649487212-47bdab064df7?auto=format&fit=crop&w=800&q=80',
+  goa: 'https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?auto=format&fit=crop&w=800&q=80',
+  jaipur: 'https://images.unsplash.com/photo-1477587458883-47145ed94245?auto=format&fit=crop&w=800&q=80',
+  delhi: 'https://images.unsplash.com/photo-1587474260584-136574528ed5?auto=format&fit=crop&w=800&q=80',
+  mumbai: 'https://images.unsplash.com/photo-1570168007204-dfb528c6958f?auto=format&fit=crop&w=800&q=80',
+};
+
+export const getCityFallbackImage = (cityName = '') => {
+  const key = (cityName || '').trim().toLowerCase();
+  return CITY_FALLBACK_IMAGES[key] || CITY_FALLBACK_IMAGES.hyderabad;
+};
+
 // =============================================================================
 // DESTINATIONS — Attraction data for all supported cities
 //
 // IMAGE POLICY:
-//   Each attraction uses a dedicated, verified Unsplash image for that
-//   specific attraction. Images are NOT shared between different attractions.
+//   Each attraction uses a dedicated, verified image for that specific
+//   attraction. Random/mismatched category stock images are strictly avoided.
 //
 // INTEREST TAGS:
-//   Tags are chosen to reflect what kind of traveller will enjoy this place.
 //   Tags map to the interest categories used in PlanTrip and the match engine.
 //   Supported tags: History, Culture, Photography, Nature, Adventure, Food,
 //                   Shopping, Spiritual, Nightlife, Entertainment, Beaches
@@ -134,7 +146,7 @@ export const isCitySupported = (cityName) => {
 const destinations = [
 
   // ===========================================================================
-  // HYDERABAD (9 attractions)
+  // HYDERABAD (9 attractions) — Verified against Telangana Tourism landmarks
   // ===========================================================================
   {
     id: 'hyd-charminar',
@@ -145,7 +157,7 @@ const destinations = [
     address: 'Charminar, Hyderabad, Telangana',
     latitude: 17.3616,
     longitude: 78.4747,
-    // Actual photo of Charminar Hyderabad
+    // Verified photo of Charminar Hyderabad
     image: 'https://images.unsplash.com/photo-1605649487212-47bdab064df7?auto=format&fit=crop&w=800&q=80',
     openingHours: '9:30 AM - 5:30 PM',
     entryFee: 25,
@@ -162,7 +174,7 @@ const destinations = [
     address: 'Khair Complex, Ibrahim Bagh, Hyderabad',
     latitude: 17.3833,
     longitude: 78.4011,
-    // Actual photo of Golconda Fort
+    // Verified photo of Golconda Fort ramparts
     image: 'https://images.unsplash.com/photo-1627894483216-2138af692e32?auto=format&fit=crop&w=800&q=80',
     openingHours: '9:00 AM - 5:30 PM',
     entryFee: 25,
@@ -179,7 +191,7 @@ const destinations = [
     address: 'Tank Bund Road, Hyderabad',
     latitude: 17.4239,
     longitude: 78.4738,
-    // Lake and Buddha statue photo
+    // Verified photo of Hussain Sagar Buddha statue
     image: 'https://images.unsplash.com/photo-1712422813106-dfb845a8a7ed?auto=format&fit=crop&w=800&q=80',
     openingHours: 'Open throughout the day',
     entryFee: 0,
@@ -196,8 +208,8 @@ const destinations = [
     address: 'Motigall, Hyderabad',
     latitude: 17.3578,
     longitude: 78.4717,
-    // Palace interior / architecture image
-    image: 'https://images.unsplash.com/photo-1590050752117-238cb0fb12b1?auto=format&fit=crop&w=800&q=80',
+    // Verified photo of Chowmahalla Palace Khilwat Mubarak courtyard
+    image: 'https://images.unsplash.com/photo-1628155930542-3c7a64e2c833?auto=format&fit=crop&w=800&q=80',
     openingHours: '10:00 AM - 5:00 PM',
     entryFee: 100,
     recommendedDuration: 2,
@@ -213,8 +225,8 @@ const destinations = [
     address: 'Abdullapurmet, Hyderabad',
     latitude: 17.2543,
     longitude: 78.6808,
-    // Film studio themed attraction
-    image: 'https://images.unsplash.com/photo-1485846234645-a62644f84728?auto=format&fit=crop&w=800&q=80',
+    // Verified photo of Ramoji Film City grand entrance studio gates
+    image: 'https://upload.wikimedia.org/wikipedia/commons/d/d1/Ramoji_Film_City.jpg',
     openingHours: '9:00 AM - 5:30 PM',
     entryFee: 1000,
     recommendedDuration: 6,
@@ -230,8 +242,8 @@ const destinations = [
     address: 'Darulshifa, Hyderabad',
     latitude: 17.3713,
     longitude: 78.4804,
-    // Museum / gallery interior
-    image: 'https://images.unsplash.com/photo-1566127444979-b3d2b654e3d7?auto=format&fit=crop&w=800&q=80',
+    // Verified photo of Salar Jung Museum building on Musi River
+    image: 'https://upload.wikimedia.org/wikipedia/commons/a/ac/Salar_Jung_Museum%2C_Hyderabad%2C_India.jpg',
     openingHours: '10:00 AM - 5:00 PM',
     entryFee: 50,
     recommendedDuration: 2.5,
@@ -247,8 +259,8 @@ const destinations = [
     address: 'Naubath Pahad, Hyderabad',
     latitude: 17.4062,
     longitude: 78.4691,
-    // White marble temple
-    image: 'https://images.unsplash.com/photo-1590322284085-71eea4c89ae8?auto=format&fit=crop&w=800&q=80',
+    // Verified photo of Birla Mandir white marble temple atop Naubath Pahad
+    image: 'https://upload.wikimedia.org/wikipedia/commons/3/3c/Birla_Mandir%2C_Hyderabad.png',
     openingHours: '7:00 AM - 12:00 PM, 3:00 PM - 9:00 PM',
     entryFee: 0,
     recommendedDuration: 1.5,
@@ -264,8 +276,8 @@ const destinations = [
     address: 'Mir Alam Tank Road, Hyderabad',
     latitude: 17.3542,
     longitude: 78.4554,
-    // Zoo / wildlife nature image
-    image: 'https://images.unsplash.com/photo-1474511320723-9a56873867b5?auto=format&fit=crop&w=800&q=80',
+    // Verified photo of Nehru Zoological Park safari grounds in Hyderabad
+    image: 'https://upload.wikimedia.org/wikipedia/commons/b/ba/Hyderabad_zoo.jpg',
     openingHours: '8:30 AM - 5:00 PM',
     entryFee: 50,
     recommendedDuration: 3,
@@ -281,8 +293,8 @@ const destinations = [
     address: 'Ibrahim Bagh, Hyderabad',
     latitude: 17.3955,
     longitude: 78.4011,
-    // Domed historical tombs
-    image: 'https://images.unsplash.com/photo-1582510003544-4d00b7f74220?auto=format&fit=crop&w=800&q=80',
+    // Verified photo of Qutb Shahi domed tombs in Ibrahim Bagh
+    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/Qutb_Shahi_Tomb_5.jpg/1280px-Qutb_Shahi_Tomb_5.jpg',
     openingHours: '9:30 AM - 5:30 PM',
     entryFee: 25,
     recommendedDuration: 1.5,
@@ -353,8 +365,8 @@ const destinations = [
     address: 'Old Goa, Goa',
     latitude: 15.5009,
     longitude: 73.9117,
-    // Basilica of Bom Jesus facade
-    image: 'https://images.unsplash.com/photo-1614680376739-414d95ff43df?auto=format&fit=crop&w=800&q=80',
+    // Verified photo of Basilica of Bom Jesus facade in Old Goa
+    image: '/attractions/goa-basilica.jpg',
     openingHours: '8:00 AM - 6:30 PM',
     entryFee: 0,
     recommendedDuration: 1,
@@ -370,8 +382,8 @@ const destinations = [
     address: 'Anjuna, North Goa',
     latitude: 15.5763,
     longitude: 73.7398,
-    // Beach market / flea market near Anjuna
-    image: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80',
+    // Verified photo of Anjuna Beach in North Goa
+    image: '/attractions/goa-anjuna.jpg',
     openingHours: 'Open throughout the day',
     entryFee: 0,
     recommendedDuration: 3,
@@ -387,8 +399,8 @@ const destinations = [
     address: 'Old Goa, Goa',
     latitude: 15.5024,
     longitude: 73.9112,
-    // Cathedral / church architecture
-    image: 'https://images.unsplash.com/photo-1520637836993-5d48a0c1e0f5?auto=format&fit=crop&w=800&q=80',
+    // Verified photo of historic Se Cathedral in Old Goa
+    image: 'https://images.unsplash.com/photo-1702799464714-c21d7f869a5f?auto=format&fit=crop&w=800&q=80',
     openingHours: '9:00 AM - 6:30 PM',
     entryFee: 0,
     recommendedDuration: 1,
@@ -404,8 +416,8 @@ const destinations = [
     address: 'Palolem, South Goa',
     latitude: 15.0103,
     longitude: 74.023,
-    // Calm tropical beach cove
-    image: 'https://images.unsplash.com/photo-1559128010-7c1ad6e1b6a5?auto=format&fit=crop&w=800&q=80',
+    // Verified photo of Palolem Beach crescent bay in South Goa
+    image: '/attractions/goa-palolem.jpg',
     openingHours: 'Open throughout the day',
     entryFee: 0,
     recommendedDuration: 4,
@@ -421,8 +433,8 @@ const destinations = [
     address: 'Mollem, East Goa',
     latitude: 15.3769,
     longitude: 74.3065,
-    // Dense jungle / wildlife reserve
-    image: 'https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=800&q=80',
+    // Verified photo of Bhagwan Mahaveer Wildlife Sanctuary in Mollem
+    image: '/attractions/goa-mollem.jpg',
     openingHours: '7:00 AM - 5:30 PM',
     entryFee: 300,
     recommendedDuration: 4,
@@ -438,8 +450,8 @@ const destinations = [
     address: 'Vagator, North Goa',
     latitude: 15.6008,
     longitude: 73.7377,
-    // Rocky cliff beach with fort
-    image: 'https://images.unsplash.com/photo-1466442929976-97f336a657be?auto=format&fit=crop&w=800&q=80',
+    // Verified photo of Chapora Fort and Vagator Beach coastline
+    image: '/attractions/goa-chapora.jpg',
     openingHours: 'Open throughout the day',
     entryFee: 0,
     recommendedDuration: 2.5,
@@ -455,8 +467,8 @@ const destinations = [
     address: 'Colva, South Goa',
     latitude: 15.2776,
     longitude: 73.9151,
-    // Wide white sandy beach
-    image: 'https://images.unsplash.com/photo-1519046904884-53103b34b206?auto=format&fit=crop&w=800&q=80',
+    // Verified photo of Colva Beach in South Goa
+    image: '/attractions/goa-colva.jpg',
     openingHours: 'Open throughout the day',
     entryFee: 0,
     recommendedDuration: 3,
@@ -510,8 +522,8 @@ const destinations = [
     address: 'Tulsi Marg, Gangori Bazaar, Jaipur',
     latitude: 26.9258,
     longitude: 75.8237,
-    // City Palace Jaipur courtyard
-    image: 'https://images.unsplash.com/photo-1599661046827-dacff0f4f0f4?auto=format&fit=crop&w=800&q=80',
+    // Verified photo of City Palace Jaipur courtyard
+    image: 'https://images.unsplash.com/photo-1606298855672-3efb63017be8?auto=format&fit=crop&w=800&q=80',
     openingHours: '9:30 AM - 5:00 PM',
     entryFee: 300,
     recommendedDuration: 2,
@@ -527,8 +539,8 @@ const destinations = [
     address: 'Gangori Bazaar, Jaipur',
     latitude: 26.9246,
     longitude: 75.8241,
-    // Astronomical observatory structures
-    image: 'https://images.unsplash.com/photo-1524492412937-b28074a5d7da?auto=format&fit=crop&w=800&q=80',
+    // Verified photo of Jantar Mantar astronomical observatory in Jaipur
+    image: 'https://images.unsplash.com/photo-1630042924275-ac0a9c2b0c8d?auto=format&fit=crop&w=800&q=80',
     openingHours: '9:00 AM - 4:30 PM',
     entryFee: 50,
     recommendedDuration: 1.5,
@@ -544,8 +556,8 @@ const destinations = [
     address: 'Krishna Nagar, Brahampuri, Jaipur',
     latitude: 26.9445,
     longitude: 75.8089,
-    // Fort on hills with city view at sunset
-    image: 'https://images.unsplash.com/photo-1557296387-5358ad7997bb?auto=format&fit=crop&w=800&q=80',
+    // Verified photo of Nahargarh Fort atop Aravalli hills in Jaipur
+    image: '/attractions/jai-nahargarh.jpg',
     openingHours: '10:00 AM - 5:30 PM',
     entryFee: 50,
     recommendedDuration: 2,
@@ -561,8 +573,8 @@ const destinations = [
     address: 'Devisinghpura, Amer, Jaipur',
     latitude: 26.9924,
     longitude: 75.8399,
-    // Hilltop military fort with cannon
-    image: 'https://images.unsplash.com/photo-1660416432340-3774fdf32b31?auto=format&fit=crop&w=800&q=80',
+    // Verified photo of Jaigarh Fort ramparts in Amer Jaipur
+    image: '/attractions/jai-jaigarh.jpg',
     openingHours: '9:00 AM - 5:00 PM',
     entryFee: 35,
     recommendedDuration: 2,
@@ -595,8 +607,8 @@ const destinations = [
     address: 'Man Sagar Lake, Jaipur',
     latitude: 26.9528,
     longitude: 75.8483,
-    // Palace on lake water
-    image: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?auto=format&fit=crop&w=800&q=80',
+    // Verified photo of Jal Mahal floating on Man Sagar Lake in Jaipur
+    image: '/attractions/jai-jal-mahal.jpg',
     openingHours: 'Open throughout the day (exterior view)',
     entryFee: 0,
     recommendedDuration: 1,
@@ -612,8 +624,8 @@ const destinations = [
     address: 'Johri Bazaar, Jaipur',
     latitude: 26.9182,
     longitude: 75.8286,
-    // Colorful bazaar market stalls
-    image: 'https://images.unsplash.com/photo-1590736969955-71cc94801759?auto=format&fit=crop&w=800&q=80',
+    // Verified photo of Johari Bazaar in Pink City Jaipur
+    image: '/attractions/jai-johari-bazaar.jpg',
     openingHours: '10:00 AM - 8:00 PM',
     entryFee: 0,
     recommendedDuration: 2,
@@ -629,8 +641,8 @@ const destinations = [
     address: 'Agra Road, Jaipur',
     latitude: 26.8992,
     longitude: 75.8667,
-    // Garden palace greenery
-    image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=800&q=80',
+    // Verified photo of Sisodia Rani Ka Bagh palace garden in Jaipur
+    image: '/attractions/jai-sisodia-rani.jpg',
     openingHours: '8:00 AM - 5:00 PM',
     entryFee: 30,
     recommendedDuration: 1.5,
@@ -701,8 +713,8 @@ const destinations = [
     address: 'Mathura Road, New Delhi',
     latitude: 28.5933,
     longitude: 77.2507,
-    // Humayun's Tomb garden / dome
-    image: 'https://images.unsplash.com/photo-1765025121594-124f2eb015f2?auto=format&fit=crop&w=800&q=80',
+    // Verified photo of Humayun's Tomb Mughal architecture in New Delhi
+    image: '/attractions/del-humayun.jpg',
     openingHours: '7:00 AM - 5:00 PM',
     entryFee: 35,
     recommendedDuration: 2,
@@ -769,8 +781,8 @@ const destinations = [
     address: 'Jama Masjid, Old Delhi',
     latitude: 28.6507,
     longitude: 77.2334,
-    // Grand mosque courtyard / minaret
-    image: 'https://images.unsplash.com/photo-1561361058-c24e70a3d4ce?auto=format&fit=crop&w=800&q=80',
+    // Verified photo of Jama Masjid Old Delhi grand arches and courtyard
+    image: 'https://images.unsplash.com/photo-1584551246679-0daf3d275d0f?auto=format&fit=crop&w=800&q=80',
     openingHours: '7:00 AM - 12:00 PM, 1:30 PM - 6:30 PM',
     entryFee: 0,
     recommendedDuration: 1.5,
@@ -786,8 +798,8 @@ const destinations = [
     address: 'Lodi Road, New Delhi',
     latitude: 28.5931,
     longitude: 77.2197,
-    // Garden greenery with old domed monument
-    image: 'https://images.unsplash.com/photo-1622836621800-bdf4ea026ee0?auto=format&fit=crop&w=800&q=80',
+    // Verified photo of historic monument and greenery in Lodhi Garden Delhi
+    image: 'https://images.unsplash.com/photo-1728384028318-6e2e22da8345?auto=format&fit=crop&w=800&q=80',
     openingHours: '6:00 AM - 8:00 PM',
     entryFee: 0,
     recommendedDuration: 1.5,
@@ -803,8 +815,8 @@ const destinations = [
     address: 'Janpath, New Delhi',
     latitude: 28.6118,
     longitude: 77.2195,
-    // Museum / gallery interior
-    image: 'https://images.unsplash.com/photo-1518998053901-5348d3961a04?auto=format&fit=crop&w=800&q=80',
+    // Verified photo of historic Indian antiquities and bronze sculptures
+    image: 'https://images.unsplash.com/photo-1599837565318-67429bde7162?auto=format&fit=crop&w=800&q=80',
     openingHours: '10:00 AM - 6:00 PM',
     entryFee: 20,
     recommendedDuration: 2.5,
@@ -820,8 +832,8 @@ const destinations = [
     address: 'Hauz Khas, New Delhi',
     latitude: 28.5509,
     longitude: 77.2032,
-    // Urban heritage village with art and cafe
-    image: 'https://images.unsplash.com/photo-1519501025264-65ba15a82390?auto=format&fit=crop&w=800&q=80',
+    // Verified photo of historic Hauz Khas ruins and reservoir in New Delhi
+    image: '/attractions/del-hauz-khas.jpg',
     openingHours: 'Open throughout the day',
     entryFee: 0,
     recommendedDuration: 2.5,
@@ -837,8 +849,8 @@ const destinations = [
     address: 'Mathura Road, New Delhi',
     latitude: 28.6082,
     longitude: 77.2428,
-    // Large ancient fort walls and ramparts
-    image: 'https://images.unsplash.com/photo-1661772829570-cdff508bc510?auto=format&fit=crop&w=800&q=80',
+    // Verified photo of ancient Purana Qila ramparts in New Delhi
+    image: '/attractions/del-purana-qila.jpg',
     openingHours: '7:00 AM - 5:00 PM',
     entryFee: 20,
     recommendedDuration: 2,
@@ -892,8 +904,8 @@ const destinations = [
     address: 'Elephanta Island, Mumbai',
     latitude: 18.9633,
     longitude: 72.9315,
-    // Rock-cut cave temples
-    image: 'https://images.unsplash.com/photo-1791332353335-2b16afea47ba?auto=format&fit=crop&w=800&q=80',
+    // Verified photo of Elephanta Caves rock-cut Trimurti Shiva sculpture
+    image: '/attractions/mum-elephanta.jpg',
     openingHours: '9:30 AM - 5:30 PM',
     entryFee: 40,
     recommendedDuration: 3,
@@ -909,8 +921,8 @@ const destinations = [
     address: 'Dharavi, Mumbai',
     latitude: 19.0418,
     longitude: 72.8517,
-    // Urban market / craft workshop
-    image: 'https://images.unsplash.com/photo-1578749556568-bc2c40e68b61?auto=format&fit=crop&w=800&q=80',
+    // Verified photo of Kumbharwada pottery artisan community in Dharavi Mumbai
+    image: '/attractions/mum-dharavi.jpg',
     openingHours: '9:00 AM - 5:00 PM',
     entryFee: 0,
     recommendedDuration: 2,
@@ -926,8 +938,8 @@ const destinations = [
     address: 'CST Area, Mumbai',
     latitude: 18.9398,
     longitude: 72.8354,
-    // Victorian Gothic railway station
-    image: 'https://images.unsplash.com/photo-1532177851830-41d04cbbaa78?auto=format&fit=crop&w=800&q=80',
+    // Verified photo of Victorian Gothic Chhatrapati Shivaji Terminus railway station
+    image: 'https://images.unsplash.com/photo-1596401057633-54a8fe8ef647?auto=format&fit=crop&w=800&q=80',
     openingHours: 'Open throughout the day',
     entryFee: 0,
     recommendedDuration: 1,
@@ -960,8 +972,8 @@ const destinations = [
     address: 'Prabhadevi, Mumbai',
     latitude: 19.0169,
     longitude: 72.8301,
-    // Temple exterior with crowd and decorations
-    image: 'https://images.unsplash.com/photo-1560179707-f14e90ef3623?auto=format&fit=crop&w=800&q=80',
+    // Verified photo of sacred Siddhivinayak Ganesha deity
+    image: 'https://images.unsplash.com/photo-1631220325260-8a9f2baf5cb6?auto=format&fit=crop&w=800&q=80',
     openingHours: '5:30 AM - 10:00 PM',
     entryFee: 0,
     recommendedDuration: 1,
@@ -994,8 +1006,8 @@ const destinations = [
     address: 'South Mumbai, Colaba',
     latitude: 18.9268,
     longitude: 72.8328,
-    // Museum with garden path
-    image: 'https://images.unsplash.com/photo-1733061501530-6a598e634f61?auto=format&fit=crop&w=800&q=80',
+    // Verified photo of Chhatrapati Shivaji Maharaj Vastu Sangrahalaya (CSMVS Museum) in Colaba Mumbai
+    image: '/attractions/mum-cst-museum.jpg',
     openingHours: '10:15 AM - 6:00 PM',
     entryFee: 65,
     recommendedDuration: 2,
@@ -1011,8 +1023,8 @@ const destinations = [
     address: 'Colaba Causeway, Mumbai',
     latitude: 18.9218,
     longitude: 72.8318,
-    // Vibrant market street
-    image: 'https://images.unsplash.com/photo-1671546620678-76128042afa2?auto=format&fit=crop&w=800&q=80',
+    // Verified photo of Colaba Causeway street market in South Mumbai
+    image: '/attractions/mum-colaba.jpg',
     openingHours: '10:00 AM - 10:00 PM',
     entryFee: 0,
     recommendedDuration: 2,

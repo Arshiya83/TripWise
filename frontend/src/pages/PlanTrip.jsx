@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTrip } from '../context/TripContext';
-import { CITY_OPTIONS, isCitySupported, SUPPORTED_CITY_NAMES } from '../data/destination';
+import { CITY_OPTIONS, isCitySupported } from '../data/destination';
 import Button from '../components/Button';
 import './PlanTrip.css';
 

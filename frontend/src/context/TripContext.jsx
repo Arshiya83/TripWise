@@ -1,12 +1,15 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { destinations } from '../data/destination';
 import { DESTINATION_PLACES } from '../data/mockData';
+import { useAuth } from './AuthContext';
 
 const TripContext = createContext(null);
 
-const LS_KEY = 'tripwise_trip_state';
+const DEFAULT_LS_KEY = 'tripwise_trip_state';
 
 const INITIAL_TRIP = {
+  _id: null,
+  id: null,
   destination: '',
   numberOfDays: 3,
   adults: 2,
@@ -16,6 +19,14 @@ const INITIAL_TRIP = {
   travelType: '',
   interests: [],
   selectedPlaces: [],
+  selectedHotels: [],
+  selectedRestaurants: [],
+  itinerary: null,
+  budgetPlan: null,
+  status: 'planned',
+  coverImage: '',
+  accommodationPricingMode: 'auto', // 'auto' | 'manual'
+  manualAccommodationCost: null,    // User-entered total stay cost (for entire stay)
   tripReady: false,  // set true when user clicks "Create My Smart Trip"
 };
 
@@ -25,10 +36,20 @@ const INITIAL_TRIP = {
 export function getAttractionCity(place) {
   if (!place) return '';
   if (place.city) return place.city.trim();
-  const matchDest = destinations.find((d) => d.id === place.id);
-  if (matchDest?.city) return matchDest.city.trim();
-  const matchMock = DESTINATION_PLACES.find((d) => d.id === place.id);
-  if (matchMock?.city) return matchMock.city.trim();
+  if (place.destination) return place.destination.trim();
+  if (place.id) {
+    const matchDest = destinations.find((d) => d.id === place.id);
+    if (matchDest?.city) return matchDest.city.trim();
+    const matchMock = DESTINATION_PLACES.find((d) => d.id === place.id);
+    if (matchMock?.city) return matchMock.city.trim();
+  }
+  const placeName = (place.name || place.title || '').trim().toLowerCase();
+  if (placeName) {
+    const matchDest = destinations.find((d) => (d.name || d.title || '').trim().toLowerCase() === placeName);
+    if (matchDest?.city) return matchDest.city.trim();
+    const matchMock = DESTINATION_PLACES.find((d) => (d.name || d.title || '').trim().toLowerCase() === placeName);
+    if (matchMock?.city) return matchMock.city.trim();
+  }
   return '';
 }
 
@@ -39,12 +60,13 @@ export function isPlaceInCity(place, cityName) {
   if (!place || !cityName) return false;
   const pCity = getAttractionCity(place).toLowerCase();
   const targetCity = cityName.trim().toLowerCase();
-  return pCity === targetCity;
+  if (pCity) return pCity === targetCity;
+  return true;
 }
 
-function loadFromStorage() {
+function loadFromStorage(storageKey) {
   try {
-    const raw = localStorage.getItem(LS_KEY);
+    const raw = localStorage.getItem(storageKey);
     if (!raw) return INITIAL_TRIP;
     const parsed = JSON.parse(raw);
     const loadedTrip = { ...INITIAL_TRIP, ...parsed };
@@ -66,16 +88,26 @@ function loadFromStorage() {
 
 // ─── Provider ─────────────────────────────────────────────────────────────────
 export function TripProvider({ children }) {
-  const [trip, setTrip] = useState(loadFromStorage);
+  const auth = useAuth();
+  const authUser = auth?.user || null;
 
-  // Persist to localStorage on every state change
+  const storageKey = authUser?.id ? `tripwise_trip_state_${authUser.id}` : DEFAULT_LS_KEY;
+
+  const [trip, setTrip] = useState(() => loadFromStorage(storageKey));
+
+  // Switch/reset trip state when user account changes
+  useEffect(() => {
+    setTrip(loadFromStorage(storageKey));
+  }, [storageKey]);
+
+  // Persist to user-scoped localStorage on every state change
   useEffect(() => {
     try {
-      localStorage.setItem(LS_KEY, JSON.stringify(trip));
+      localStorage.setItem(storageKey, JSON.stringify(trip));
     } catch {
       // quota exceeded – silently ignore
     }
-  }, [trip]);
+  }, [trip, storageKey]);
 
   /** Store all trip preferences at once (from Plan Trip form) */
   const setTripPreferences = useCallback((prefs) => {
@@ -161,8 +193,44 @@ export function TripProvider({ children }) {
 
   /** Reset to initial state (clears localStorage too) */
   const resetTrip = useCallback(() => {
-    localStorage.removeItem(LS_KEY);
+    try {
+      localStorage.removeItem(storageKey);
+      localStorage.removeItem(DEFAULT_LS_KEY);
+    } catch {
+      // Ignore
+    }
     setTrip(INITIAL_TRIP);
+  }, [storageKey]);
+
+  /** Load a full trip object (e.g. from saved trips) */
+  const loadTrip = useCallback((savedTrip) => {
+    if (!savedTrip) return;
+    setTrip((prev) => ({
+      ...prev,
+      _id: savedTrip._id || savedTrip.id || prev._id,
+      id: savedTrip._id || savedTrip.id || prev.id,
+      destination: savedTrip.destination || prev.destination,
+      numberOfDays: savedTrip.numberOfDays || prev.numberOfDays,
+      adults: savedTrip.travelers || prev.adults,
+      totalTravelers: savedTrip.travelers || prev.totalTravelers,
+      travelers: savedTrip.travelers || prev.travelers,
+      budget: String(savedTrip.budget || prev.budget),
+      travelType: savedTrip.travelType || prev.travelType,
+      interests: Array.isArray(savedTrip.interests) ? savedTrip.interests : prev.interests,
+      selectedPlaces: Array.isArray(savedTrip.selectedPlaces) ? savedTrip.selectedPlaces : prev.selectedPlaces,
+      selectedHotels: Array.isArray(savedTrip.selectedHotels) ? savedTrip.selectedHotels : prev.selectedHotels,
+      accommodationPricingMode: savedTrip.accommodationPricingMode || 'auto',
+      manualAccommodationCost:
+        savedTrip.manualAccommodationCost !== undefined && savedTrip.manualAccommodationCost !== null
+          ? Number(savedTrip.manualAccommodationCost)
+          : null,
+      selectedRestaurants: Array.isArray(savedTrip.selectedRestaurants) ? savedTrip.selectedRestaurants : prev.selectedRestaurants,
+      itinerary: savedTrip.itinerary || prev.itinerary,
+      budgetPlan: savedTrip.budgetBreakdown || prev.budgetPlan,
+      status: savedTrip.status || prev.status || 'planned',
+      coverImage: savedTrip.coverImage || prev.coverImage,
+      tripReady: true,
+    }));
   }, []);
 
   const value = {
@@ -173,6 +241,7 @@ export function TripProvider({ children }) {
     clearSelectedPlaces,
     markTripReady,
     resetTrip,
+    loadTrip,
   };
 
   return <TripContext.Provider value={value}>{children}</TripContext.Provider>;

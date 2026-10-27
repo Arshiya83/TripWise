@@ -1,18 +1,64 @@
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useTrip } from '../context/TripContext';
 import Button from '../components/Button';
 import { CITY_OPTIONS } from '../data/destination';
-import { MOCK_SAVED_TRIPS } from '../data/mockData';
+import { getSavedTrips } from '../services/api';
+import { getVerifiedAttractionImage, handleAttractionImageError } from '../utils/imageFallback';
 import './Dashboard.css';
+
 const SUPPORTED_CITIES = CITY_OPTIONS.filter((city) => city.supported);
 
 function Dashboard() {
-  const { user } = useAuth();
-  const { setTripPreferences } = useTrip();
+  const { isAuthenticated, user } = useAuth();
+  const { setTripPreferences, loadTrip } = useTrip();
   const navigate = useNavigate();
 
-  const firstName = user?.name?.split(' ')[0] || 'Traveller';
+  const [recentTrips, setRecentTrips] = useState([]);
+
+  useEffect(() => {
+    async function loadRecent() {
+      let trips = [];
+
+      if (isAuthenticated) {
+        try {
+          const res = await getSavedTrips();
+          if (res?.data?.success && Array.isArray(res.data.trips)) {
+            trips = res.data.trips;
+          }
+        } catch {
+          // Fall through to user-scoped local cache
+        }
+
+        if (trips.length === 0 && user?.id) {
+          try {
+            const localRaw = localStorage.getItem(`tripwise_local_saved_trips_${user.id}`);
+            if (localRaw) {
+              const parsed = JSON.parse(localRaw);
+              if (Array.isArray(parsed)) trips = parsed;
+            }
+          } catch {
+            // Ignore
+          }
+        }
+      } else {
+        try {
+          const localRaw = localStorage.getItem('tripwise_local_saved_trips');
+          if (localRaw) {
+            const parsed = JSON.parse(localRaw);
+            if (Array.isArray(parsed)) trips = parsed;
+          }
+        } catch {
+          // Ignore
+        }
+      }
+
+      setRecentTrips(trips.slice(0, 3));
+    }
+
+    loadRecent();
+  }, [isAuthenticated, user?.id]);
 
   const handleDestinationClick = (cityName) => {
     setTripPreferences({
@@ -21,6 +67,11 @@ function Dashboard() {
       travelType: 'Couple',
     });
     navigate('/destinations');
+  };
+
+  const handleOpenTrip = (targetTrip) => {
+    loadTrip(targetTrip);
+    navigate('/itinerary');
   };
 
   return (
@@ -121,27 +172,48 @@ function Dashboard() {
               <h2 id="recent-trips-heading">MY RECENT TRIPS</h2>
             </div>
 
-            <div className="recent-trip-list">
-              {MOCK_SAVED_TRIPS.slice(0, 3).map((trip) => (
-                <article key={trip.id} className="recent-trip-card">
-                  <img src={trip.coverImage} alt={trip.destination} className="recent-trip-image" />
-                  <div className="recent-trip-content">
-                    <div className="recent-trip-topline">
-                      <span className="recent-trip-status">{trip.status}</span>
-                      <span className="recent-trip-date">{trip.dates}</span>
+            {recentTrips.length === 0 ? (
+              <div className="card" style={{ padding: '2rem', textAlign: 'center', background: '#ffffff' }}>
+                <p style={{ color: 'var(--text-secondary)', marginBottom: '1rem' }}>
+                  No saved trips yet. Create your first smart travel plan to access it anytime!
+                </p>
+                <Button variant="outline" size="sm" onClick={() => navigate('/plan-trip')}>
+                  Plan a Trip Now →
+                </Button>
+              </div>
+            ) : (
+              <div className="recent-trip-list">
+                {recentTrips.map((tripItem) => (
+                  <article key={tripItem._id || tripItem.id} className="recent-trip-card">
+                    <img
+                      src={
+                        tripItem.coverImage && !tripItem.coverImage.includes('photo-1488646953014')
+                          ? tripItem.coverImage
+                          : getVerifiedAttractionImage(tripItem.selectedPlaces?.[0] || tripItem.destination, tripItem.destination)
+                      }
+                      alt={tripItem.destination}
+                      className="recent-trip-image"
+                      loading="lazy"
+                      onError={(e) => handleAttractionImageError(e, `${tripItem.destination} Trip`, tripItem.destination)}
+                    />
+                    <div className="recent-trip-content">
+                      <div className="recent-trip-topline">
+                        <span className="recent-trip-status">{tripItem.status || 'Planned'}</span>
+                        <span className="recent-trip-date">{tripItem.dates || `${tripItem.numberOfDays} Days`}</span>
+                      </div>
+                      <h3>{tripItem.destination}</h3>
+                      <div className="recent-trip-meta">
+                        <span>{tripItem.numberOfDays} days</span>
+                        <span>{tripItem.travelers} travelers</span>
+                      </div>
+                      <Button variant="secondary" size="sm" onClick={() => handleOpenTrip(tripItem)}>
+                        View Trip
+                      </Button>
                     </div>
-                    <h3>{trip.destination}</h3>
-                    <div className="recent-trip-meta">
-                      <span>{trip.numberOfDays} days</span>
-                      <span>{trip.travelers} travelers</span>
-                    </div>
-                    <Button variant="secondary" size="sm" onClick={() => navigate('/itinerary')}>
-                      View Trip
-                    </Button>
-                  </div>
-                </article>
-              ))}
-            </div>
+                  </article>
+                ))}
+              </div>
+            )}
           </section>
 
           <section className="dashboard-section" aria-labelledby="travel-tip-heading">

@@ -1,6 +1,8 @@
 import { useState, useMemo, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTrip, isPlaceInCity } from '../context/TripContext';
+import { getCityFallbackImage } from '../data/destination';
+import { getAttractionPlaceholder, getVerifiedAttractionImage } from '../utils/imageFallback';
 import Button from '../components/Button';
 import SmartPlannerModal from '../components/SmartPlannerModal';
 import './SelectedPlaces.css';
@@ -142,13 +144,14 @@ export default function SelectedPlaces() {
                   <div className="sel-item-index">{index + 1}</div>
 
                   <img
-                    src={place.image}
+                    src={getVerifiedAttractionImage(place, currentCity)}
                     alt={place.name}
                     className="sel-item-thumb"
                     loading="lazy"
                     onError={(e) => {
-                      e.currentTarget.src =
-                        'https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&w=800&q=80';
+                      e.currentTarget.onerror = null;
+                      e.currentTarget.src = getAttractionPlaceholder(place.name, currentCity);
+                      // getCityFallbackImage(currentCity) - landmark fallback reference
                     }}
                   />
 

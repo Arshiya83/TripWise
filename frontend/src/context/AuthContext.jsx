@@ -1,99 +1,171 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+} from 'react';
+
+import {
+  loginUser,
+  registerUser,
+} from '../services/api';
 
 const AuthContext = createContext(null);
 
-// ─── Mock user for demo ───────────────────────────────────────────────────────
-const MOCK_USER = {
-  id: 'user_001',
-  name: 'Traveller',
-  email: 'demo@tripwise.app',
-  avatar: null,
-};
-
-// ─── Provider ─────────────────────────────────────────────────────────────────
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Rehydrate from localStorage on mount
+  // Restore the existing session when the app opens
   useEffect(() => {
     try {
-      const stored = localStorage.getItem('tripwise_user');
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        setUser(parsed);
-        setIsAuthenticated(true);
+      const storedUser = localStorage.getItem('tripwise_user');
+      const token = localStorage.getItem('tripwise_token');
+
+      if (storedUser && token) {
+        const parsedUser = JSON.parse(storedUser);
+
+        if (parsedUser && parsedUser.id) {
+          setUser(parsedUser);
+          setIsAuthenticated(true);
+        } else {
+          localStorage.removeItem('tripwise_user');
+          localStorage.removeItem('tripwise_token');
+        }
+      } else {
+        localStorage.removeItem('tripwise_user');
+        localStorage.removeItem('tripwise_token');
       }
     } catch {
       localStorage.removeItem('tripwise_user');
+      localStorage.removeItem('tripwise_token');
     } finally {
       setLoading(false);
     }
   }, []);
 
-  /**
-   * login() – Frontend mock; replace body with real API call in Stage 2.
-   * Shape: loginUser(email, password) → { user, token }
-   */
-  const login = async (email, password) => {
+  // Log in through the real backend
+  const login = useCallback(async (email, password) => {
     setLoading(true);
     setError(null);
-    try {
-      // ── Placeholder: swap for real API call later ──
-      await new Promise((r) => setTimeout(r, 800)); // simulate network
-      if (!email || !password) throw new Error('Email and password are required.');
 
-      const loggedInUser = { ...MOCK_USER, email };
-      localStorage.setItem('tripwise_user', JSON.stringify(loggedInUser));
-      // TODO: also store JWT token returned from backend
+    try {
+      const response = await loginUser(email, password);
+      const data = response.data;
+
+      if (!data?.success || !data?.token || !data?.user) {
+        throw new Error(
+          data?.message || 'Login failed. Please try again.'
+        );
+      }
+
+      const loggedInUser = {
+        id: data.user.id,
+        name: data.user.name,
+        email: data.user.email,
+        avatar: data.user.avatar ?? null,
+      };
+
+      localStorage.setItem('tripwise_token', data.token);
+      localStorage.setItem(
+        'tripwise_user',
+        JSON.stringify(loggedInUser)
+      );
+
       setUser(loggedInUser);
       setIsAuthenticated(true);
+
       return { success: true };
     } catch (err) {
-      const msg = err.message || 'Login failed. Please try again.';
-      setError(msg);
-      return { success: false, message: msg };
+      const message =
+        err.response?.data?.message ||
+        err.message ||
+        'Login failed. Please try again.';
+
+      setError(message);
+
+      return { success: false, message };
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  /**
-   * register() – Frontend mock; replace body with real API call in Stage 2.
-   */
-  const register = async (name, email, password) => {
+  // Register through the real backend
+  const register = useCallback(async (name, email, password) => {
     setLoading(true);
     setError(null);
-    try {
-      await new Promise((r) => setTimeout(r, 800));
-      if (!name || !email || !password) throw new Error('All fields are required.');
 
-      const newUser = { ...MOCK_USER, name, email };
-      localStorage.setItem('tripwise_user', JSON.stringify(newUser));
-      setUser(newUser);
+    try {
+      const response = await registerUser(name, email, password);
+      const data = response.data;
+
+      if (!data?.success || !data?.token || !data?.user) {
+        throw new Error(
+          data?.message || 'Registration failed. Please try again.'
+        );
+      }
+
+      const registeredUser = {
+        id: data.user.id,
+        name: data.user.name,
+        email: data.user.email,
+        avatar: data.user.avatar ?? null,
+      };
+
+      localStorage.setItem('tripwise_token', data.token);
+      localStorage.setItem(
+        'tripwise_user',
+        JSON.stringify(registeredUser)
+      );
+
+      setUser(registeredUser);
       setIsAuthenticated(true);
+
       return { success: true };
     } catch (err) {
-      const msg = err.message || 'Registration failed. Please try again.';
-      setError(msg);
-      return { success: false, message: msg };
+      const message =
+        err.response?.data?.message ||
+        err.message ||
+        'Registration failed. Please try again.';
+
+      setError(message);
+
+      return { success: false, message };
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  /** logout() – clear local state and storage */
-  const logout = () => {
+  // Log out and clear the local session
+  const logout = useCallback(() => {
     localStorage.removeItem('tripwise_user');
     localStorage.removeItem('tripwise_token');
+    localStorage.removeItem('tripwise_trip_state');
+    localStorage.removeItem('tripwise_preferences');
+
+    // Clean any user-scoped trip states
+    try {
+      Object.keys(localStorage).forEach((key) => {
+        if (key.startsWith('tripwise_trip_state_')) {
+          localStorage.removeItem(key);
+        }
+      });
+    } catch {
+      // Ignore
+    }
+
     setUser(null);
     setIsAuthenticated(false);
     setError(null);
-  };
+  }, []);
 
-  const clearError = () => setError(null);
+  const clearError = useCallback(() => {
+    setError(null);
+  }, []);
 
   const value = {
     user,
@@ -106,13 +178,20 @@ export function AuthProvider({ children }) {
     clearError,
   };
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={value}>
+      {children}
+    </AuthContext.Provider>
+  );
 }
 
-// ─── Hook ─────────────────────────────────────────────────────────────────────
 export function useAuth() {
   const ctx = useContext(AuthContext);
-  if (!ctx) throw new Error('useAuth must be used inside <AuthProvider>');
+
+  if (!ctx) {
+    throw new Error('useAuth must be used inside <AuthProvider>');
+  }
+
   return ctx;
 }
 

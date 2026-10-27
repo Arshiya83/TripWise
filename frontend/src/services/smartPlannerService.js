@@ -12,6 +12,9 @@
  */
 
 import { destinations } from '../data/destination.js';
+import { generateTrip } from './api.js';
+import { calculateTripBudget } from '../utils/budgetEngine.js';
+import { MOCK_RESTAURANTS, getRestaurantsByDestination } from '../data/mockData.js';
 
 // Category normalization mapping
 const CATEGORY_MAP = {
@@ -172,7 +175,10 @@ export function calculateMatchScore(attraction, userInterests = []) {
 
   // Build human-readable match label using matched interest names
   const allMatchedLabels = [...exactMatches, ...synonymMatches];
-  const primaryMatchLabel = allMatchedLabels.slice(0, 2).join(' & ');
+  const isSingular = allMatchedLabels.length === 1;
+  const matchPhrase = isSingular
+    ? `Matches your interest in ${allMatchedLabels[0]}`
+    : `Matches your interests in ${allMatchedLabels.slice(0, 2).join(' & ')}`;
 
   return {
     isRecommended,
@@ -180,8 +186,8 @@ export function calculateMatchScore(attraction, userInterests = []) {
     scoreLabel: `${score}% Match`,
     badgeText: isRecommended ? '✨ Recommended for your interests' : null,
     explanation: isRecommended
-      ? `Matches your interests in ${primaryMatchLabel}`
-      : `Popular attraction in this city`,
+      ? matchPhrase
+      : (allMatchedLabels.length > 0 ? matchPhrase : `Popular attraction in this city`),
     matchedInterests: allMatchedLabels,
   };
 }
@@ -288,32 +294,97 @@ export function buildOrganizedItinerary({
   travelType = 'Couple',
   interests = [],
   selectedPlaces = [],
+  selectedRestaurants = [],
+  selectedHotel = null,
+  accommodationPricingMode = 'auto',
+  manualAccommodationCost = null,
 }) {
   const cityKey = destination.trim().toLowerCase();
   const diningList = CITY_DINING_SPOTS[cityKey] || CITY_DINING_SPOTS.hyderabad;
 
   const daysCount = Math.max(1, Math.min(30, Number(numberOfDays) || 3));
   const userPlaces = [...selectedPlaces];
+  const numTravelers = Math.max(1, Number(travelers) || 2);
+  const totalBudget = Number(budget) || 25000;
+
+  // 1. Resolve and normalize selected restaurants
+  const allCityRestaurants = getRestaurantsByDestination(destination);
+  const normalizedRestaurants = [];
+  const seenRestIds = new Set();
+
+  (selectedRestaurants || []).forEach((item) => {
+    if (!item) return;
+    let resolved = null;
+    if (typeof item === 'object' && item.name) {
+      resolved = item;
+    } else {
+      const targetStr = String(item).trim().toLowerCase();
+      resolved =
+        allCityRestaurants.find(
+          (r) => r.id === item || r.name?.toLowerCase() === targetStr
+        ) ||
+        MOCK_RESTAURANTS.find(
+          (r) => (r.id === item || r.name?.toLowerCase() === targetStr) && r.city.toLowerCase() === cityKey
+        );
+    }
+
+    if (resolved) {
+      const uid = resolved.id || resolved.name;
+      if (!seenRestIds.has(uid)) {
+        seenRestIds.add(uid);
+        normalizedRestaurants.push(resolved);
+      }
+    }
+  });
+
+  const restaurantQueue = [...normalizedRestaurants];
+  const unscheduledRestaurants = [];
 
   // Distribute places across available days
-  // E.g. 4 places across 3 days -> Day 1 gets 2, Day 2 gets 1, Day 3 gets 1
   const daysArray = [];
-
   const placesPerDay = Math.ceil(userPlaces.length / daysCount) || 1;
 
   for (let d = 1; d <= daysCount; d++) {
-    const dayPlaces = [];
     const startIndex = (d - 1) * placesPerDay;
     const daySlice = userPlaces.slice(startIndex, startIndex + placesPerDay);
 
-    const lunchSpot = diningList[1] || { title: 'Local Cuisine Lunch', desc: 'Authentic regional lunch stop', time: '01:00 PM' };
-    const dinnerSpot = diningList[3] || { title: 'Dinner & Evening Relaxation', desc: 'Relaxing dinner near hotel', time: '08:00 PM' };
+    const fallbackLunch = diningList[1] || { title: 'Local Cuisine Lunch', desc: 'Authentic regional lunch stop', time: '01:00 PM' };
+    const fallbackDinner = diningList[3] || { title: 'Dinner & Evening Relaxation', desc: 'Relaxing dinner near hotel', time: '08:00 PM' };
     const eveningChai = diningList[2] || { title: 'Sunset Tea & Snacks', desc: 'Refreshment break between sightseeing', time: '05:00 PM' };
 
     const activities = [];
 
+    // Helper to build a scheduled dining activity
+    const createDiningActivity = (rest, mealType, defaultTime) => {
+      const avgCostPerPerson = rest.avgCostForTwo
+        ? Math.round(rest.avgCostForTwo / 2)
+        : rest.priceRange === '₹₹₹₹' ? 2500 : rest.priceRange === '₹₹₹' ? 1200 : rest.priceRange === '₹' ? 250 : 550;
+
+      const cuisineNote = rest.cuisine ? `${rest.cuisine} cuisine` : 'Regional culinary specialty';
+      const locNote = rest.location || rest.area || destination;
+      const dishNote = rest.recommendedDishes?.length ? ` • Must try: ${rest.recommendedDishes.join(', ')}` : '';
+
+      return {
+        time: defaultTime,
+        title: `${mealType} at ${rest.name}`,
+        placeName: rest.name,
+        category: 'Food',
+        icon: '🍽️',
+        duration: mealType === 'Dinner' ? '2 Hours' : '1.5 Hours',
+        description: `${cuisineNote} at ${locNote}.${dishNote}`,
+        address: rest.location || rest.address || destination,
+        area: rest.location || rest.area || destination,
+        estimatedCost: avgCostPerPerson,
+        cost: rest.priceRange ? `${rest.priceRange} (~₹${avgCostPerPerson * numTravelers} for ${numTravelers} guests)` : `₹${avgCostPerPerson * numTravelers}`,
+        mealType,
+        isUserSelected: true,
+        image: rest.image || rest.imageUrl,
+        transitAfter: mealType === 'Dinner' ? '🚗 Return transit to hotel' : '🚶 Relaxed post-lunch stroll',
+      };
+    };
+
     if (daySlice.length === 0) {
-      // Leisure / Cultural Exploration day if fewer places selected than days
+      // Leisure / Cultural Exploration day
       activities.push({
         time: '09:30 AM',
         title: `Scenic Exploration & Walking Trails in ${destination}`,
@@ -324,16 +395,23 @@ export function buildOrganizedItinerary({
         description: `Relaxed exploration of scenic neighbourhoods, artisanal boutiques, and historic streetscapes.`,
         transitAfter: '🚗 15 mins transit to dining',
       });
-      activities.push({
-        time: lunchSpot.time,
-        title: lunchSpot.title,
-        placeName: 'Regional Specialty Dining',
-        category: 'Food',
-        icon: '🍽️',
-        duration: '1.5 Hours',
-        description: lunchSpot.desc,
-        transitAfter: '🚶 Walking stroll around marketplace',
-      });
+
+      // Lunch slot
+      if (restaurantQueue.length > 0) {
+        activities.push(createDiningActivity(restaurantQueue.shift(), 'Lunch', '01:00 PM'));
+      } else {
+        activities.push({
+          time: fallbackLunch.time,
+          title: fallbackLunch.title,
+          placeName: 'Regional Specialty Dining',
+          category: 'Food',
+          icon: '🍽️',
+          duration: '1.5 Hours',
+          description: fallbackLunch.desc,
+          transitAfter: '🚶 Walking stroll around marketplace',
+        });
+      }
+
       activities.push({
         time: eveningChai.time,
         title: eveningChai.title,
@@ -344,11 +422,16 @@ export function buildOrganizedItinerary({
         description: 'Explore local handicraft markets and enjoy evening tea.',
         transitAfter: '🚗 Return to hotel base',
       });
+
+      // Dinner slot if available
+      if (restaurantQueue.length > 0) {
+        activities.push(createDiningActivity(restaurantQueue.shift(), 'Dinner', '08:00 PM'));
+      }
     } else {
       // Sequence user's selected places with dining stops and transits
       daySlice.forEach((place, pIdx) => {
         const timeSlot = pIdx === 0 ? '09:30 AM' : pIdx === 1 ? '02:30 PM' : '05:30 PM';
-        
+
         activities.push({
           time: timeSlot,
           title: `Visit ${place.name}`,
@@ -361,36 +444,32 @@ export function buildOrganizedItinerary({
           entryFee: place.entryFeeStr || `₹${place.entryFee || 0} / person`,
           transitAfter: pIdx < daySlice.length - 1
             ? '🚗 ~15 mins transit to next stop'
-            : '🚗 ~20 mins transit back to accommodation',
+            : '🚗 ~20 mins transit to dining',
         });
 
         // Insert lunch after morning activity
-        if (pIdx === 0 && daySlice.length > 1) {
-          activities.push({
-            time: lunchSpot.time,
-            title: lunchSpot.title,
-            placeName: 'Curated Dining Stop',
-            category: 'Food',
-            icon: '🍽️',
-            duration: '1.5 Hours',
-            description: lunchSpot.desc,
-            transitAfter: '🚗 12 mins transit to afternoon stop',
-          });
+        if (pIdx === 0) {
+          if (restaurantQueue.length > 0) {
+            activities.push(createDiningActivity(restaurantQueue.shift(), 'Lunch', '01:00 PM'));
+          } else {
+            activities.push({
+              time: fallbackLunch.time,
+              title: fallbackLunch.title,
+              placeName: 'Curated Dining Stop',
+              category: 'Food',
+              icon: '🍽️',
+              duration: '1.5 Hours',
+              description: fallbackLunch.desc,
+              transitAfter: '🚗 12 mins transit to afternoon stop',
+            });
+          }
         }
       });
 
-      // Add evening tea or dinner if only 1 place on this day
-      if (daySlice.length === 1) {
-        activities.push({
-          time: lunchSpot.time,
-          title: lunchSpot.title,
-          placeName: 'Curated Dining Stop',
-          category: 'Food',
-          icon: '🍽️',
-          duration: '1.5 Hours',
-          description: lunchSpot.desc,
-          transitAfter: '🚶 Relaxed stroll',
-        });
+      // Add Dinner slot
+      if (restaurantQueue.length > 0) {
+        activities.push(createDiningActivity(restaurantQueue.shift(), 'Dinner', '08:00 PM'));
+      } else if (daySlice.length === 1) {
         activities.push({
           time: eveningChai.time,
           title: eveningChai.title,
@@ -416,32 +495,30 @@ export function buildOrganizedItinerary({
     });
   }
 
-  // Calculate budget optimization based on total budget and selected places
-  const totalBudget = Number(budget) || 25000;
-  const numTravelers = Math.max(1, Number(travelers) || 2);
+  // Any remaining selected restaurants that exceeded trip capacity
+  while (restaurantQueue.length > 0) {
+    const unassigned = restaurantQueue.shift();
+    unscheduledRestaurants.push({
+      ...unassigned,
+      reason: `Trip schedule reached maximum capacity (${daysCount * 2} main meal slots across ${daysCount} days). Available for spontaneous dining.`,
+    });
+  }
 
-  // Exact entry fees from user's selected places
-  const actualTicketsFee = userPlaces.reduce((sum, p) => {
-    const feeMatch = (p.entryFeeStr || String(p.entryFee || '')).match(/\d+/);
-    const costPerPerson = feeMatch ? parseInt(feeMatch[0], 10) : 0;
-    return sum + costPerPerson * numTravelers;
-  }, 0);
+  // Authoritative, mathematically consistent budget calculation
+  const calculatedBudget = calculateTripBudget({
+    budget: totalBudget,
+    numberOfDays: daysCount,
+    travelers: numTravelers,
+    selectedHotel,
+    selectedRestaurants: normalizedRestaurants,
+    selectedPlaces: userPlaces,
+    destination,
+    travelType,
+    accommodationPricingMode,
+    manualAccommodationCost,
+  });
 
-  // Dynamic distribution adapted to budget scale
-  let accPercent = 0.38;
-  let foodPercent = 0.26;
-  let transPercent = 0.16;
-  let miscPercent = 0.08;
-
-  const accommodationCost = Math.round(totalBudget * accPercent);
-  const foodCost = Math.round(totalBudget * foodPercent);
-  const transportCost = Math.round(totalBudget * transPercent);
-  const miscCost = Math.round(totalBudget * miscPercent);
-
-  const estimatedSpend = accommodationCost + foodCost + transportCost + actualTicketsFee + miscCost;
-  const remainingBudget = totalBudget - estimatedSpend;
-
-  // Hotel Tier Description based on budget
+  // Hotel & Dining tier descriptions
   let hotelTierDesc = 'Comfortable 3-Star / Boutique Hotel';
   let diningTierDesc = 'Authentic local bistros & casual dining';
   let transportTierDesc = 'AC Cabs & App-based rides';
@@ -456,7 +533,6 @@ export function buildOrganizedItinerary({
     transportTierDesc = 'Dedicated private chauffeur AC cab';
   }
 
-  // Budget saving suggestions
   const budgetSavingSuggestions = [
     `Group your ${userPlaces.length} selected attractions by proximity to save approximately 25% on local cab transit.`,
     `Visit monuments during early morning hours (before 10:30 AM) to avoid peak heat, crowds, and ticket queues.`,
@@ -464,7 +540,6 @@ export function buildOrganizedItinerary({
     `Consider pre-booking online tickets for heritage monuments to bypass physical ticket counter queues.`,
   ];
 
-  // Travel tips
   const travelTips = [
     `Start by 09:00 AM each morning to make the most of gentle daylight and golden hour photography.`,
     `Wear comfortable walking footwear suitable for historic stone pavilions and fort stairways.`,
@@ -472,7 +547,6 @@ export function buildOrganizedItinerary({
     `Leave 30–45 minute buffers between afternoon activities for relaxed dining and spontaneous shopping.`,
   ];
 
-  // Destination Overview
   const interestsStr = interests.length > 0 ? interests.join(', ') : 'History, Culture & Food';
   const overviewText = `A ${daysCount}-day ${travelType.toLowerCase()} journey to ${destination} featuring ${userPlaces.length} handpicked attractions based on your preferences in ${interestsStr}.`;
 
@@ -484,57 +558,16 @@ export function buildOrganizedItinerary({
     travelType,
     interests,
     selectedPlaces: userPlaces,
+    selectedRestaurants: normalizedRestaurants,
+    unscheduledRestaurants,
+    selectedHotel,
     overviewText,
     daysList: daysArray,
     budgetPlan: {
-      totalBudget,
-      estimatedSpend,
-      remainingBudget,
+      ...calculatedBudget,
       hotelTierDesc,
       diningTierDesc,
       transportTierDesc,
-      breakdown: [
-        {
-          name: 'Accommodation',
-          icon: '🏨',
-          amount: accommodationCost,
-          desc: `${hotelTierDesc} (${daysCount - 1} nights for ${numTravelers} guests)`,
-          percent: `${Math.round(accPercent * 100)}%`,
-          color: '#3b82f6',
-        },
-        {
-          name: 'Food & Drinks',
-          icon: '🍽️',
-          amount: foodCost,
-          desc: `${diningTierDesc} for ${daysCount} days`,
-          percent: `${Math.round(foodPercent * 100)}%`,
-          color: '#0284c7',
-        },
-        {
-          name: 'Local Transport',
-          icon: '🚗',
-          amount: transportCost,
-          desc: `${transportTierDesc} between attractions`,
-          percent: `${Math.round(transPercent * 100)}%`,
-          color: '#8b5cf6',
-        },
-        {
-          name: 'Activities & Entry Fees',
-          icon: '🎟️',
-          amount: actualTicketsFee,
-          desc: `Monument tickets & passes for ${userPlaces.length} attractions`,
-          percent: `${Math.round((actualTicketsFee / totalBudget) * 100) || 5}%`,
-          color: '#f59e0b',
-        },
-        {
-          name: 'Shopping / Miscellaneous',
-          icon: '🛍️',
-          amount: miscCost,
-          desc: 'Handicrafts, tea stops & contingency buffer',
-          percent: `${Math.round(miscPercent * 100)}%`,
-          color: '#10b981',
-        },
-      ],
     },
     budgetSavingSuggestions,
     travelTips,
@@ -542,18 +575,29 @@ export function buildOrganizedItinerary({
 }
 
 /**
- * Async wrapper prepared for future Gemini API integration
+ * Async wrapper for Gemini AI itinerary generation
  * 
  * Pipeline:
- * React UI -> smartPlannerService -> (future backend POST /api/trips/generate) -> Gemini
+ * React UI -> smartPlannerService -> backend POST /api/trips/generate -> Gemini
  */
 export async function requestAIGeneratedItinerary(tripPreferences) {
-  // Simulate network generation latency for AI planner steps
-  await new Promise((resolve) => setTimeout(resolve, 1400));
+  try {
+    const response = await generateTrip(tripPreferences);
+    if (response?.data?.success && response?.data?.itinerary) {
+      return {
+        ...response.data.itinerary,
+        _source: 'gemini',
+      };
+    }
+  } catch (error) {
+    console.warn(
+      '[TripWise AI] Gemini backend call failed, using local organized fallback:',
+      error.response?.data?.message || error.message
+    );
+  }
 
-  // Future integration point:
-  // const response = await axios.post('/api/trips/generate', tripPreferences);
-  // return response.data;
-
-  return buildOrganizedItinerary(tripPreferences);
+  return {
+    ...buildOrganizedItinerary(tripPreferences),
+    _source: 'local-fallback',
+  };
 }

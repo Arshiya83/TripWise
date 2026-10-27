@@ -1,0 +1,15 @@
+{
+  "name": "tripwise-workspace",
+  "version": "1.0.0",
+  "description": "TripWise — AI-Powered Personalized Travel Planner Monorepo",
+  "private": true,
+  "scripts": {
+    "start:backend": "npm --prefix backend start",
+    "dev:backend": "npm --prefix backend run dev",
+    "dev:frontend": "npm --prefix frontend run dev",
+    "build:frontend": "npm --prefix frontend run build",
+    "test:frontend": "npm --prefix frontend test",
+    "test:backend": "npm --prefix backend test:consistency",
+    "test": "npm --prefix frontend test && npm --prefix backend run test:consistency"
+  }
+}

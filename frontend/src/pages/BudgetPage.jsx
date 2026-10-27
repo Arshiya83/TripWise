@@ -1,7 +1,9 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTrip } from '../context/TripContext';
 import Button from '../components/Button';
+import { calculateTripBudget } from '../utils/budgetEngine';
+import { getHotelsByDestination, getRestaurantsByDestination } from '../data/mockData';
 import './BudgetPage.css';
 
 function BudgetPage() {
@@ -12,88 +14,87 @@ function BudgetPage() {
   const [budgetVal, setBudgetVal] = useState(userBudget);
 
   const currentCity = trip.destination || 'Hyderabad';
-  const travelers = trip.travelers || 2;
+  const travelers = trip.travelers || trip.totalTravelers || 2;
   const days = trip.numberOfDays || 3;
+  const selectedPlaces = useMemo(() => trip.selectedPlaces || [], [trip.selectedPlaces]);
 
-  // Breakdown calculations
-  const accommodationCost = Math.round(budgetVal * 0.38);
-  const foodCost = Math.round(budgetVal * 0.24);
-  const transportCost = Math.round(budgetVal * 0.16);
-  const entryFeesCost = Math.round(budgetVal * 0.08);
-  const miscCost = Math.round(budgetVal * 0.06);
+  // Resolve selected hotel and restaurants
+  const selectedHotel = useMemo(() => {
+    if (Array.isArray(trip.selectedHotels) && trip.selectedHotels.length > 0) {
+      const h = trip.selectedHotels[0];
+      if (typeof h === 'object' && h.name) return h;
+      const cityHotels = getHotelsByDestination(currentCity);
+      return cityHotels.find((item) => item.id === h || item.name?.toLowerCase() === String(h).toLowerCase()) || null;
+    }
+    return null;
+  }, [trip.selectedHotels, currentCity]);
 
-  const totalEstimatedCost =
-    accommodationCost + foodCost + transportCost + entryFeesCost + miscCost;
-  const remainingBudget = budgetVal - totalEstimatedCost;
-  const spentPercent = Math.min(100, Math.round((totalEstimatedCost / budgetVal) * 100));
+  const selectedRestaurants = useMemo(() => {
+    if (Array.isArray(trip.selectedRestaurants) && trip.selectedRestaurants.length > 0) {
+      const cityRests = getRestaurantsByDestination(currentCity);
+      return trip.selectedRestaurants.map((r) => {
+        if (typeof r === 'object' && r.name) return r;
+        return cityRests.find((item) => item.id === r || item.name?.toLowerCase() === String(r).toLowerCase()) || null;
+      }).filter(Boolean);
+    }
+    return [];
+  }, [trip.selectedRestaurants, currentCity]);
+
+  // Authoritative calculations from single source of truth
+  const budgetCalculations = useMemo(() => {
+    return calculateTripBudget({
+      budget: budgetVal,
+      numberOfDays: days,
+      travelers,
+      selectedHotel,
+      selectedRestaurants,
+      selectedPlaces,
+      destination: currentCity,
+      travelType: trip.travelType || 'Couple',
+      accommodationPricingMode: trip.accommodationPricingMode || 'auto',
+      manualAccommodationCost: trip.manualAccommodationCost,
+    });
+  }, [
+    budgetVal,
+    days,
+    travelers,
+    selectedHotel,
+    selectedRestaurants,
+    selectedPlaces,
+    currentCity,
+    trip.travelType,
+    trip.accommodationPricingMode,
+    trip.manualAccommodationCost,
+  ]);
+
+  const totalEstimatedCost = budgetCalculations.totalEstimatedSpend;
+  const remainingBudget = budgetCalculations.remainingBudget;
+  const spentPercent = budgetCalculations.utilizationPercent;
+  const isOverBudget = budgetCalculations.isOverBudget;
+  const shortfall = budgetCalculations.shortfall;
 
   // Determine budget status
   let budgetStatus = 'within';
   let statusText = 'Within Budget — Balanced Travel Plan';
   let statusBadgeClass = 'badge-within';
 
-  if (remainingBudget < 0) {
+  if (isOverBudget) {
     budgetStatus = 'over';
-    statusText = 'Over Budget — Consider Adjusting Stay or Activities';
+    statusText = `Over Budget by ₹${shortfall.toLocaleString('en-IN')} — Adjustment Recommended`;
     statusBadgeClass = 'badge-over';
-  } else if (remainingBudget < budgetVal * 0.12) {
+  } else if (remainingBudget < budgetVal * 0.1) {
     budgetStatus = 'near';
     statusText = 'Near Budget Limit — Moderate Daily Spending';
     statusBadgeClass = 'badge-near';
   }
 
   const handleUpdateBudget = (newVal) => {
-    setBudgetVal(newVal);
-    setTripPreferences({ budget: String(newVal) });
+    const safeVal = Math.max(5000, newVal);
+    setBudgetVal(safeVal);
+    setTripPreferences({ budget: String(safeVal) });
   };
 
-  const CATEGORIES = [
-    {
-      id: 'acc',
-      name: 'Accommodation',
-      icon: '🏨',
-      amount: accommodationCost,
-      percent: '38%',
-      desc: `${days - 1} nights hotel stay for ${travelers} guests`,
-      color: '#3b82f6',
-    },
-    {
-      id: 'food',
-      name: 'Food & Dining',
-      icon: '🍽️',
-      amount: foodCost,
-      percent: '24%',
-      desc: `Breakfast, lunches & iconic heritage dinners for ${days} days`,
-      color: '#0284c7',
-    },
-    {
-      id: 'trans',
-      name: 'Transportation',
-      icon: '🚗',
-      amount: transportCost,
-      percent: '16%',
-      desc: 'Local cabs, metro & inter-attraction transfers',
-      color: '#8b5cf6',
-    },
-    {
-      id: 'fees',
-      name: 'Entry Fees & Tickets',
-      icon: '🎟️',
-      amount: entryFeesCost,
-      percent: '8%',
-      desc: 'Monuments, museum passes & boat ride fees',
-      color: '#f59e0b',
-    },
-    {
-      id: 'misc',
-      name: 'Miscellaneous & Shopping',
-      icon: '🛍️',
-      amount: miscCost,
-      percent: '6%',
-      desc: 'Souvenirs, tea stops & emergency reserves',
-      color: '#10b981',
-    },
-  ];
+  const CATEGORIES = budgetCalculations.breakdown;
 
   return (
     <div className="budget-page">
@@ -116,6 +117,7 @@ function BudgetPage() {
                 variant="outline"
                 size="md"
                 onClick={() => navigate('/itinerary')}
+                id="btn-back-itinerary"
               >
                 ← Back to Itinerary
               </Button>
@@ -123,6 +125,7 @@ function BudgetPage() {
                 variant="primary"
                 size="md"
                 onClick={() => navigate('/hotels')}
+                id="btn-browse-hotels"
               >
                 Browse Hotels →
               </Button>
@@ -139,7 +142,7 @@ function BudgetPage() {
                   type="button"
                   className="adjust-pill"
                   onClick={() => handleUpdateBudget(budgetVal - 5000)}
-                  disabled={budgetVal <= 10000}
+                  disabled={budgetVal <= 5000}
                 >
                   − ₹5k
                 </button>
@@ -188,6 +191,36 @@ function BudgetPage() {
             </div>
           </div>
         </div>
+
+        {/* ── Shortfall Warning & Alternatives (When Over Budget) ── */}
+        {isOverBudget && (
+          <div className="budget-over-warning card animate-fade-in" style={{ backgroundColor: 'rgba(239, 68, 68, 0.08)', borderColor: '#ef4444', marginBottom: '1.5rem', padding: '1.25rem 1.5rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
+              <span style={{ fontSize: '1.5rem' }}>⚠️</span>
+              <h3 style={{ color: '#ef4444', margin: 0, fontSize: '1.15rem' }}>
+                Trip Plan Exceeds Budget by ₹{shortfall.toLocaleString('en-IN')}
+              </h3>
+            </div>
+            <p style={{ color: 'var(--text-secondary)', margin: '0 0 1rem 0', fontSize: '0.92rem' }}>
+              Your selected accommodation, dining stops, and activities require more than your ₹{budgetVal.toLocaleString('en-IN')} budget cap. TripWise recommends the following adjustments:
+            </p>
+            <div style={{ display: 'grid', gap: '0.75rem' }}>
+              {budgetCalculations.budgetAlternatives.map((alt, idx) => (
+                <div key={idx} style={{ background: 'var(--surface-color, #ffffff)', border: '1px solid var(--border-color, #e2e8f0)', borderRadius: '8px', padding: '0.75rem 1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem' }}>
+                  <div>
+                    <strong style={{ color: 'var(--text-primary)' }}>{alt.title}</strong>
+                    <p style={{ margin: '0.25rem 0 0 0', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>{alt.description}</p>
+                  </div>
+                  {alt.type === 'budget' && (
+                    <Button size="sm" variant="primary" onClick={() => handleUpdateBudget(totalEstimatedCost)}>
+                      Adjust Budget to ₹{totalEstimatedCost.toLocaleString('en-IN')}
+                    </Button>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* ── Expense Breakdown Grid ───────────────── */}
         <div className="budget-breakdown-grid">

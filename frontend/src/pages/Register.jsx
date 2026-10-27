@@ -34,8 +34,8 @@ function Register() {
     }
     if (!form.password) {
       e.password = 'Password is required.';
-    } else if (form.password.length < 6) {
-      e.password = 'Password must be at least 6 characters.';
+    } else if (form.password.length < 8) {
+      e.password = 'Password must be at least 8 characters.';
     }
     if (!form.confirmPassword) {
       e.confirmPassword = 'Please confirm your password.';
@@ -160,7 +160,7 @@ function Register() {
                   type={showPassword ? 'text' : 'password'}
                   name="password"
                   autoComplete="new-password"
-                  placeholder="At least 6 characters"
+                  placeholder="At least 8 characters"
                   className={`form-input${errors.password ? ' error' : ''}`}
                   value={form.password}
                   onChange={handleChange}

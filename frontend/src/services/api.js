@@ -13,7 +13,7 @@ import axios from 'axios';
 
 // ─── Axios Instance ─────────────────────────────────────────────────────────
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api',
+  baseURL: import.meta?.env?.VITE_API_URL || 'http://localhost:5000/api',
   timeout: 15000,
   headers: { 'Content-Type': 'application/json' },
 });
@@ -33,9 +33,16 @@ api.interceptors.response.use(
   (res) => res,
   (err) => {
     if (err.response?.status === 401) {
-      localStorage.removeItem('tripwise_token');
-      localStorage.removeItem('tripwise_user');
-      window.location.href = '/login';
+      // Do not redirect to /login if the 401 is from login or register attempts
+      const isAuthEndpoint =
+        err.config?.url?.includes('/auth/login') ||
+        err.config?.url?.includes('/auth/register');
+
+      if (!isAuthEndpoint) {
+        localStorage.removeItem('tripwise_token');
+        localStorage.removeItem('tripwise_user');
+        window.location.href = '/login';
+      }
     }
     return Promise.reject(err);
   },
@@ -60,6 +67,9 @@ export const getCurrentUser = () => api.get('/auth/me');
 // Stage 2: POST /api/trips
 export const createTrip = (tripData) => api.post('/trips', tripData);
 
+// Stage 2: PUT /api/trips/:id
+export const updateTrip = (id, tripData) => api.put(`/trips/${id}`, tripData);
+
 // Stage 2: GET /api/trips
 export const getSavedTrips = () => api.get('/trips');
 
@@ -75,9 +85,9 @@ export const getDestinations = (city) =>
   api.get('/destinations', { params: { city } });
 
 // ─── AI Itinerary ─────────────────────────────────────────────────────────────
-// Stage 2: POST /api/itinerary/generate
+// POST /api/trips/generate
 export const generateTrip = (preferences) =>
-  api.post('/itinerary/generate', preferences);
+  api.post('/trips/generate', preferences);
 
 // ─── Route Optimization ───────────────────────────────────────────────────────
 // Stage 2: POST /api/route/calculate
@@ -85,13 +95,13 @@ export const calculateRoute = (places) =>
   api.post('/route/calculate', { places });
 
 // ─── Hotels ──────────────────────────────────────────────────────────────────
-// Stage 2: GET /api/hotels?city=...&budget=...
-export const getHotels = (city, budget) =>
-  api.get('/hotels', { params: { city, budget } });
+// GET /api/hotels?city=...&budget=...
+export const getHotels = (city, budget, options = {}) =>
+  api.get('/hotels', { params: { city, budget, ...options } });
 
 // ─── Restaurants ─────────────────────────────────────────────────────────────
-// Stage 2: GET /api/restaurants?city=...
-export const getRestaurants = (city) =>
-  api.get('/restaurants', { params: { city } });
+// GET /api/restaurants?city=...
+export const getRestaurants = (city, options = {}) =>
+  api.get('/restaurants', { params: { city, ...options } });
 
 export default api;

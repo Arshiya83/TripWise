@@ -407,3 +407,58 @@ p {
 
 .animate-fade-in-up { animation: fadeInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) both; }
 .animate-fade-in    { animation: fadeIn 0.3s ease both; }
+
+/* ------ Print Optimization for PDF Export ------ */
+@media print {
+  body {
+    background: #ffffff !important;
+    color: #0f172a !important;
+  }
+
+  /* Hide interactive non-printable controls */
+  .navbar,
+  .footer,
+  .trip-stepper,
+  .itin-header-actions,
+  .itin-footer-actions,
+  .summary-header-actions,
+  .checkout-actions,
+  .sidebar-cta-btn,
+  .budget-quick-adjust,
+  .adjust-pill,
+  .btn,
+  button,
+  .itin-toast,
+  .summary-toast {
+    display: none !important;
+  }
+
+  /* Ensure cards print cleanly and do not break awkwardly */
+  .container {
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  .card {
+    box-shadow: none !important;
+    border: 1px solid #cbd5e1 !important;
+    page-break-inside: avoid;
+  }
+
+  .itinerary-page,
+  .trip-summary-page,
+  .budget-page {
+    padding: 10px 0 !important;
+  }
+
+  .itin-days-bar {
+    display: none !important;
+  }
+
+  .itin-timeline-card {
+    border: 1px solid #cbd5e1 !important;
+    box-shadow: none !important;
+  }
+}
+

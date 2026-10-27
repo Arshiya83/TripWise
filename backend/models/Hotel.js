@@ -11,6 +11,7 @@ const hotelSchema = new mongoose.Schema(
         pricePerNight: { type: Number, required: true, min: 0 },
         rating: { type: Number, min: 0, max: 5 },
         amenities: [{ type: String, trim: true }],
+        address: { type: String, default: '' },
         location: {
             latitude: { type: Number },
             longitude: { type: Number },
