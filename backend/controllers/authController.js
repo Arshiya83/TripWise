@@ -3,6 +3,8 @@ import User from '../models/User.js';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
+const getJwtSecret = () => process.env.JWT_SECRET || 'arshiya_fsd project';
+
 // Register a new user
 export const registerUser = async (req, res) => {
   try {
@@ -30,9 +32,7 @@ export const registerUser = async (req, res) => {
       });
     }
 
-    if (!process.env.JWT_SECRET) {
-      throw new Error('JWT_SECRET is not configured');
-    }
+    const jwtSecret = getJwtSecret();
 
     const normalizedEmail = email.trim().toLowerCase();
 
@@ -60,7 +60,7 @@ export const registerUser = async (req, res) => {
     // Generate authentication token
     const token = jwt.sign(
       { userId: user._id },
-      process.env.JWT_SECRET,
+      jwtSecret,
       { expiresIn: '7d' }
     );
 
@@ -109,9 +109,7 @@ export const loginUser = async (req, res) => {
       });
     }
 
-    if (!process.env.JWT_SECRET) {
-      throw new Error('JWT_SECRET is not configured');
-    }
+    const jwtSecret = getJwtSecret();
 
     // Find account and include passwordHash
     const user = await User.findOne({
@@ -141,7 +139,7 @@ export const loginUser = async (req, res) => {
     // Generate authentication token
     const token = jwt.sign(
       { userId: user._id },
-      process.env.JWT_SECRET,
+      jwtSecret,
       { expiresIn: '7d' }
     );
 

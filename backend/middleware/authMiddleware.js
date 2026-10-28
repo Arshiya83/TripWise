@@ -14,15 +14,8 @@ export function protect(req, res, next) {
 
         const token = authHeader.split(' ')[1];
 
-        if (!process.env.JWT_SECRET) {
-            console.error('JWT_SECRET is not configured.');
-            return res.status(500).json({
-                success: false,
-                message: 'Authentication service is not configured.',
-            });
-        }
-
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const jwtSecret = process.env.JWT_SECRET || 'arshiya_fsd project';
+        const decoded = jwt.verify(token, jwtSecret);
 
         if (!decoded.userId) {
             return res.status(401).json({

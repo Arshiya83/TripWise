@@ -15,7 +15,7 @@ services:
       - key: MONGODB_URI
         sync: false
       - key: JWT_SECRET
-        sync: false
+        value: arshiya_fsd project
       - key: GEMINI_API_KEY
         sync: false
       - key: FRONTEND_URL
