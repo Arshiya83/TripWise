@@ -1,0 +1,35 @@
+# Dependencies
+node_modules
+**/node_modules
+
+# Build artifacts
+dist
+**/dist
+dist-ssr
+build
+coverage
+
+# Backend (since frontend is deployed to Vercel and backend is on Render)
+backend
+
+# Local environment & secrets
+.env.local
+*.local
+.env.*.local
+
+# Test files & scripts
+**/test_accommodation_and_images.js
+*.test.js
+*.test.jsx
+*.spec.js
+__tests__
+
+# Editor & OS files
+.vscode
+.idea
+.DS_Store
+Thumbs.db
+
+# Logs
+logs
+*.log
